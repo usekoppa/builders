@@ -1,13 +1,26 @@
-import { APIApplicationCommandOption, ApplicationCommandOptionType } from "discord-api-types";
+import {
+  APIApplicationCommandOption,
+  ApplicationCommandOptionType,
+} from "discord-api-types";
+
 import { ToAPIApplicationCommandOptions } from "./to_api_option";
 
-export type CommandOptionType = Exclude<ApplicationCommandOptionType, ApplicationCommandOptionType.Subcommand | ApplicationCommandOptionType.SubcommandGroup>;
+export type CommandOptionType = Exclude<
+  ApplicationCommandOptionType,
+  | ApplicationCommandOptionType.Subcommand
+  | ApplicationCommandOptionType.SubcommandGroup
+>;
 
-export class Option<OptionType extends CommandOptionType, Name extends string = string, IsRequired extends boolean = true> implements ToAPIApplicationCommandOptions {
+export class Option<
+  OptionType extends CommandOptionType,
+  Name extends string = string,
+  IsRequired extends boolean = true
+> implements ToAPIApplicationCommandOptions
+{
   readonly name!: Name;
   readonly description!: string;
   readonly required = true as IsRequired;
-  
+
   constructor(public readonly type: OptionType) {}
 
   setName<NewName extends string>(name: NewName) {
@@ -31,7 +44,6 @@ export class Option<OptionType extends CommandOptionType, Name extends string = 
       name: this.name,
       description: this.description,
       required: this.required,
-    }
+    };
   }
 }
-

@@ -34,9 +34,13 @@ module.exports = {
         minimumDescriptionLength: 3,
       },
     ],
-    "@typescript-eslint/ban-types": ["error", {
-      extendDefaults: { "{}": false }
-    }],
+    "@typescript-eslint/ban-types": [
+      "error",
+      {
+        types: { "{}": false },
+        extendDefaults: true,
+      },
+    ],
     "simple-import-sort/imports": [
       "error",
       {
