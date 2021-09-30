@@ -6,15 +6,17 @@ import {
 
 import { ToAPIApplicationCommandOptions } from "./to_api_option";
 
+export type OptionWithChoicesTypes =
+  | ApplicationCommandOptionType.String
+  | ApplicationCommandOptionType.Integer
+  | ApplicationCommandOptionType.Number;
+
 export class OptionWithChoices<
-  OptionType extends
-    | ApplicationCommandOptionType.String
-    | ApplicationCommandOptionType.Integer
-    | ApplicationCommandOptionType.Number,
-  ChoiceType extends string | number,
+  OptionType extends OptionWithChoicesTypes,
+  ChoicesType extends string | number,
   Name extends string = string,
   IsRequired extends boolean = true,
-  ChoiceValues extends string | number = ChoiceType
+  ChoiceValues extends string | number = ChoicesType
 > implements ToAPIApplicationCommandOptions
 {
   readonly name!: Name;
@@ -28,7 +30,7 @@ export class OptionWithChoices<
     Reflect.set(this, "name", name);
     return this as unknown as OptionWithChoices<
       OptionType,
-      ChoiceType,
+      ChoicesType,
       NewName,
       IsRequired,
       ChoiceValues
@@ -39,7 +41,7 @@ export class OptionWithChoices<
     Reflect.set(this, "description", description);
     return this as unknown as OptionWithChoices<
       OptionType,
-      ChoiceType,
+      ChoicesType,
       Name,
       IsRequired,
       ChoiceValues
@@ -50,19 +52,19 @@ export class OptionWithChoices<
     Reflect.set(this, "required", required);
     return this as unknown as OptionWithChoices<
       OptionType,
-      ChoiceType,
+      ChoicesType,
       Name,
       NewIsRequired,
       ChoiceValues
     >;
   }
 
-  addChoice<ChoiceValue extends ChoiceType>(name: string, value: ChoiceValue) {
+  addChoice<ChoiceValue extends ChoicesType>(name: string, value: ChoiceValue) {
     if (typeof this.choices === "undefined") Reflect.set(this, "choices", []);
     this.choices!.push({ name, value });
     return this as unknown as OptionWithChoices<
       OptionType,
-      ChoiceType,
+      ChoicesType,
       Name,
       IsRequired,
       ChoiceValues | ChoiceValue
