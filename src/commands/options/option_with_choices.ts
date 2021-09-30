@@ -14,7 +14,7 @@ export class OptionWithChoices<
   ChoiceType extends string | number,
   Name extends string = string,
   IsRequired extends boolean = true,
-  ChoiceValues extends string | number = never
+  ChoiceValues extends string | number = ChoiceType
 > implements ToAPIApplicationCommandOptions
 {
   readonly name!: Name;
