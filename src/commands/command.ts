@@ -1,8 +1,6 @@
-import { RESTPostAPIApplicationCommandsJSONBody } from "discord-api-types";
-
-import { BaseCommand } from "./base/base_command";
 import { Subcommand } from "./options/subcommands/subcommand";
 import { SubcommandGroup } from "./options/subcommands/subcommand_group";
+import { BaseCommand } from "./base_command.mixin";
 
 export type CommandWithSubcommands = BaseCommand;
 
@@ -11,7 +9,7 @@ export class Command<Arguments = {}> extends BaseCommand<Arguments> {
 
   addSubcommand(fn: (subcommand: Subcommand) => Subcommand) {
     const subcommand = fn(new Subcommand());
-    this.options.push(subcommand.toJSON());
+    this.options.push(subcommand);
     return this as unknown as CommandWithSubcommands;
   }
 
@@ -19,7 +17,7 @@ export class Command<Arguments = {}> extends BaseCommand<Arguments> {
     fn: (subcommandGroup: SubcommandGroup) => SubcommandGroup
   ) {
     const subcommandGroup = fn(new SubcommandGroup());
-    this.options.push(subcommandGroup.toJSON());
+    this.options.push(subcommandGroup);
     return this as unknown as CommandWithSubcommands;
   }
 
@@ -28,11 +26,11 @@ export class Command<Arguments = {}> extends BaseCommand<Arguments> {
     return this;
   }
 
-  toJSON(): RESTPostAPIApplicationCommandsJSONBody {
+  toJSON() {
     return {
       name: this.name,
       description: this.description,
-      options: this.options,
+      options: this.options.map(option => option.toJSON()),
       default_permission: this.defaultPermission,
     };
   }

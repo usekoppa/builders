@@ -4,6 +4,8 @@ import {
   ApplicationCommandOptionType,
 } from "discord-api-types";
 
+import { NameAndDescription } from "../name_and_desc.mixin";
+
 import { ToAPIApplicationCommandOptions } from "./to_api_option";
 
 export type OptionWithChoicesTypes =
@@ -12,22 +14,26 @@ export type OptionWithChoicesTypes =
   | ApplicationCommandOptionType.Number;
 
 export class OptionWithChoices<
-  OptionType extends OptionWithChoicesTypes,
-  ChoicesType extends string | number,
-  Name extends string = string,
-  IsRequired extends boolean = true,
-  ChoiceValues extends string | number = ChoicesType
-> implements ToAPIApplicationCommandOptions
+    OptionType extends OptionWithChoicesTypes,
+    ChoicesType extends string | number,
+    Name extends string = string,
+    IsRequired extends boolean = true,
+    ChoiceValues extends string | number = ChoicesType
+  >
+  extends NameAndDescription
+  implements ToAPIApplicationCommandOptions
 {
   readonly name!: Name;
   readonly description!: string;
   readonly required = true as IsRequired;
   readonly choices: APIApplicationCommandOptionChoice[] | undefined = void 0!;
 
-  constructor(public readonly type: OptionType) {}
+  constructor(public readonly type: OptionType) {
+    super();
+  }
 
   setName<NewName extends string>(name: NewName) {
-    Reflect.set(this, "name", name);
+    this._setName(name);
     return this as unknown as OptionWithChoices<
       OptionType,
       ChoicesType,
@@ -38,7 +44,7 @@ export class OptionWithChoices<
   }
 
   setDescription(description: string) {
-    Reflect.set(this, "description", description);
+    this._setDescription(description);
     return this as unknown as OptionWithChoices<
       OptionType,
       ChoicesType,

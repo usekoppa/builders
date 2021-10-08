@@ -1,49 +1,59 @@
-import {
-  APIApplicationCommandOption,
-  ApplicationCommandOptionType,
-} from "discord-api-types";
+import type { ApplicationCommandOptionType } from "discord-api-types";
+
+import { NameAndDescription } from "../name_and_desc.mixin";
 
 import { ToAPIApplicationCommandOptions } from "./to_api_option";
 
-export type CommandOptionType = Exclude<
+export type ReducedCommandOptionTypes = Exclude<
   ApplicationCommandOptionType,
   | ApplicationCommandOptionType.Subcommand
   | ApplicationCommandOptionType.SubcommandGroup
 >;
 
 export class Option<
-  OptionType extends CommandOptionType,
-  Name extends string = string,
-  IsRequired extends boolean = true
-> implements ToAPIApplicationCommandOptions
+    OptionType extends ReducedCommandOptionTypes,
+    Name extends string = string,
+    IsRequired extends boolean = true
+  >
+  extends NameAndDescription
+  implements ToAPIApplicationCommandOptions
 {
   readonly name!: Name;
   readonly description!: string;
   readonly required = true as IsRequired;
 
-  constructor(public readonly type: OptionType) {}
+  constructor(public readonly type: OptionType) {
+    super();
+  }
 
   setName<NewName extends string>(name: NewName) {
-    Reflect.set(this, "name", name);
+    this._setName(name);
     return this as unknown as Option<OptionType, NewName, IsRequired>;
   }
 
   setDescription(description: string) {
-    Reflect.set(this, "description", description);
+    this._setDescription(description);
     return this as unknown as Option<OptionType, Name, IsRequired>;
   }
 
   setRequired<NewIsRequired extends boolean>(required: NewIsRequired) {
+    validateRequired(required);
     Reflect.set(this, "required", required);
     return this as unknown as Option<OptionType, Name, NewIsRequired>;
   }
 
-  toJSON(): APIApplicationCommandOption {
+  toJSON() {
     return {
       type: this.type as unknown as ApplicationCommandOptionType,
       name: this.name,
       description: this.description,
       required: this.required,
     };
+  }
+}
+
+function validateRequired(required: unknown): asserts required is boolean {
+  if (typeof required !== "boolean") {
+    throw new TypeError("Required must be a boolean");
   }
 }
