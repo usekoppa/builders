@@ -4,7 +4,7 @@ import {
   ApplicationCommandOptionType,
 } from "discord-api-types";
 
-import { NameAndDescription } from "../name_and_desc.mixin";
+import { NameAndDescription } from "../name_and_description.mixin";
 
 import { ToAPIApplicationCommandOptions } from "./to_api_option";
 

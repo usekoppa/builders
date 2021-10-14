@@ -1,9 +1,13 @@
-import { CommandInteractionOptionResolver } from "discord.js";
+import { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType } from "discord-api-types";
 
 import { BaseCommand } from "../base_command.mixin";
 
 import { AnyOption } from "./any_option";
+import {
+  InteractionArgumentsResolver,
+  Resolver,
+} from "./interaction_arguments_resolver";
 import type { ReducedCommandOptionTypes } from "./option";
 import { Option } from "./option";
 import {
@@ -15,7 +19,7 @@ import type {
   ResolvedMentionable,
   ResolvedRole,
   ResolvedUser,
-} from "./resolved_option_types";
+} from "./resolved_options";
 import { ToAPIApplicationCommandOptions } from "./to_api_option";
 
 type AddOptionFn<
@@ -43,11 +47,13 @@ type Argument<
 export abstract class OptionsBuilder<Arguments = {}> {
   readonly options: ToAPIApplicationCommandOptions[] = [];
 
+  protected resolver = new InteractionArgumentsResolver();
+
   addBooleanOption<Name extends string, IsRequired extends boolean>(
     fn: AddOptionFn<ApplicationCommandOptionType.Boolean, Name, IsRequired>
   ) {
     const option = fn(new Option(ApplicationCommandOptionType.Boolean));
-    this.#addOption(option, "getBoolean");
+    this.#addOption(option, "Boolean");
     return this as unknown as BaseCommand<
       Arguments & Argument<boolean, Name, IsRequired>
     >;
@@ -70,7 +76,7 @@ export abstract class OptionsBuilder<Arguments = {}> {
       new OptionWithChoices(ApplicationCommandOptionType.Integer)
     );
 
-    this.#addOption(option, "getInteger");
+    this.#addOption(option, "Integer");
     return this as unknown as BaseCommand<
       Arguments & Argument<ChoiceValues, Name, IsRequired>
     >;
@@ -80,7 +86,7 @@ export abstract class OptionsBuilder<Arguments = {}> {
     fn: AddOptionFn<ApplicationCommandOptionType.User, Name, IsRequired>
   ) {
     const option = fn(new Option(ApplicationCommandOptionType.User));
-    this.#addOption(option, "getMember");
+    this.#addOption(option, "Member");
     return this as unknown as BaseCommand<
       Arguments & Argument<ResolvedMember, Name, IsRequired>
     >;
@@ -90,7 +96,7 @@ export abstract class OptionsBuilder<Arguments = {}> {
     fn: AddOptionFn<ApplicationCommandOptionType.Mentionable, Name, IsRequired>
   ) {
     const option = fn(new Option(ApplicationCommandOptionType.Mentionable));
-    this.#addOption(option, "getMentionable");
+    this.#addOption(option, "Mentionable");
     return this as unknown as BaseCommand<
       Arguments & Argument<ResolvedMentionable, Name, IsRequired>
     >;
@@ -113,7 +119,7 @@ export abstract class OptionsBuilder<Arguments = {}> {
       new OptionWithChoices(ApplicationCommandOptionType.Number)
     );
 
-    this.#addOption(option, "getNumber");
+    this.#addOption(option, "Number");
     this.options.push(option);
     return this as unknown as BaseCommand<
       Arguments & Argument<ChoiceValues, Name, IsRequired>
@@ -124,7 +130,7 @@ export abstract class OptionsBuilder<Arguments = {}> {
     fn: AddOptionFn<ApplicationCommandOptionType.Role, Name, IsRequired>
   ) {
     const option = fn(new Option(ApplicationCommandOptionType.Role));
-    this.#addOption(option, "getRole");
+    this.#addOption(option, "Role");
     return this as unknown as BaseCommand<
       Arguments & Argument<ResolvedRole, Name, IsRequired>
     >;
@@ -147,7 +153,7 @@ export abstract class OptionsBuilder<Arguments = {}> {
       new OptionWithChoices(ApplicationCommandOptionType.String)
     );
 
-    this.#addOption(option, "getString");
+    this.#addOption(option, "String");
     return this as unknown as BaseCommand<
       Arguments & Argument<ChoiceValues, Name, IsRequired>
     >;
@@ -157,17 +163,20 @@ export abstract class OptionsBuilder<Arguments = {}> {
     fn: AddOptionFn<ApplicationCommandOptionType.User, Name, IsRequired>
   ) {
     const option = fn(new Option(ApplicationCommandOptionType.User));
-    this.#addOption(option, "getUser");
+    this.#addOption(option, "User");
     return this as unknown as BaseCommand<
       Arguments & Argument<ResolvedUser, Name, IsRequired>
     >;
   }
 
-  #addOption(
-    option: AnyOption,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    resolverName: keyof CommandInteractionOptionResolver // TODO: Add a processing stack to resolve arguments.
-  ) {
+  getInteractionArguments(interaction: CommandInteraction) {
+    return this.resolver.getInteractionArguments(
+      interaction
+    ) as Readonly<Arguments>;
+  }
+
+  #addOption(option: AnyOption, resolver: Resolver) {
     this.options.push(option);
+    this.resolver.addOption(option.name, option.required, resolver);
   }
 }
