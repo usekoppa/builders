@@ -45,6 +45,8 @@ export class Option<
     return this as unknown as Option<OptionType, Name, NewIsRequired>;
   }
 
+  // TODO: have a setDefault() function for default values.
+
   toJSON(): APICommandOption {
     return {
       type: this.type as unknown as ApplicationCommandOptionType,

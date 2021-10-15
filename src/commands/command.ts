@@ -1,11 +1,19 @@
-import { ApplicationCommandData } from "discord.js";
-import { Snowflake } from "discord-api-types";
+import {
+  APIApplicationCommand,
+  ApplicationCommandOptionType,
+  RESTPostAPIChatInputApplicationCommandsJSONBody,
+  Snowflake,
+} from "discord-api-types";
 
+import { Option } from "./options/option";
+import { OptionWithChoices } from "./options/option_with_choices";
 import { OptionsBuilder } from "./options/options_builder.mixin";
 import { Subcommand } from "./options/subcommands/subcommand";
 import { SubcommandGroup } from "./options/subcommands/subcommand_group";
+import { ToAPIApplicationCommandOptions } from "./options/to_api_option";
 import { BaseCommand } from "./base_command.mixin";
 import { CommandManager } from "./manager";
+import { NameAndDescription } from "./name_and_description.mixin";
 
 interface IncompleteCommandWithSubcommands extends Command {
   readonly executor: undefined;
@@ -21,7 +29,8 @@ export type CommandWithSubcommands = Omit<
 export class Command<Arguments = {}> extends BaseCommand<Arguments> {
   readonly defaultPermission: boolean = true;
 
-  readonly guilds: Snowflake[] = [];
+  #localGuilds = new Set<Snowflake>();
+  #cachedGuilds = new Set<Snowflake>();
 
   #hasSubcommands: false = false;
 
@@ -29,25 +38,31 @@ export class Command<Arguments = {}> extends BaseCommand<Arguments> {
     super();
   }
 
-  setGuilds(guildId: Snowflake) {
-    this.guilds.push();
-    this.#update();
+  get guilds() {
+    return this.#cachedGuilds;
+  }
+
+  setGuilds(guilds: Snowflake[]) {
+    this.#localGuilds = new Set(guilds);
+    if (this.manager.registered) {
+      this.#cachedGuilds = new Set([
+        ...this.#cachedGuilds,
+        ...this.#localGuilds,
+      ]);
+    }
+
     return this;
   }
 
   addGuild(guildId: Snowflake) {
-    this.guilds.push(guildId);
-    this.#update();
+    this.#localGuilds.add(guildId);
+    this.#cachedGuilds.add(guildId);
     return this;
   }
 
   removeGuild(guildId: Snowflake) {
-    const idx = this.guilds.findIndex(id => id === guildId);
-    if (typeof idx !== "undefined") {
-      this.guilds.splice(idx, 1);
-      this.#update();
-    }
-
+    this.#localGuilds.delete(guildId);
+    this.#cachedGuilds.delete(guildId);
     return this;
   }
 
@@ -74,13 +89,13 @@ export class Command<Arguments = {}> extends BaseCommand<Arguments> {
     return this;
   }
 
-  toJSON() {
+  toJSON(): RESTPostAPIChatInputApplicationCommandsJSONBody {
     return {
       name: this.name,
       description: this.description,
       options: this.options.map(option => option.toJSON()),
       default_permission: this.defaultPermission,
-    } as unknown as ApplicationCommandData;
+    };
   }
 
   #setAsCommandWithSubcommands() {
@@ -88,7 +103,29 @@ export class Command<Arguments = {}> extends BaseCommand<Arguments> {
     return this as unknown as CommandWithSubcommands;
   }
 
-  #update() {
-    if (this.manager.registered) this.manager.updateCommand(this);
+  static createCommandWithAPIData(
+    manager: CommandManager,
+    data: APIApplicationCommand,
+    guilds?: Snowflake[]
+  ) {
+    const command = new Command(manager);
+    command.setName(data.name);
+    command.setDescription(data.description);
+    if (typeof guilds !== "undefined") command.setGuilds(guilds);
+
+    const options = data.options?.map(rawOption => {
+      let option: NameAndDescription & ToAPIApplicationCommandOptions;
+
+      if (
+        rawOption.type === ApplicationCommandOptionType.String ||
+        rawOption.type === ApplicationCommandOptionType.Integer ||
+        rawOption.type === ApplicationCommandOptionType.Number
+      ) {
+        const optionWithChoices = new OptionWithChoices(rawOption.type);
+        Reflect.set(optionWithChoices, "choices", rawOption.choices);
+      }
+    });
+
+    Reflect.set(command, "options", options);
   }
 }

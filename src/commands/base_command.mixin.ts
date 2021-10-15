@@ -1,13 +1,13 @@
 import { mix } from "ts-mixer";
 
+import { Executable } from "../executable.mixin";
+
 import { OptionsBuilder } from "./options/options_builder.mixin";
-import { Executor } from "./executor";
 import { NameAndDescription } from "./name_and_description.mixin";
 
-@mix(NameAndDescription, OptionsBuilder)
+@mix(NameAndDescription, OptionsBuilder, Executable)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export abstract class BaseCommand<Arguments = {}> {
-  readonly executor?: Executor;
-
   setName(name: string) {
     return this._setName(name);
   }
@@ -15,13 +15,9 @@ export abstract class BaseCommand<Arguments = {}> {
   setDescription(description: string) {
     return this._setDescription(description);
   }
-
-  setExecutor(executor: Executor<Arguments>) {
-    Reflect.set(this, "executor", executor);
-    return this;
-  }
 }
 
 export interface BaseCommand<Arguments>
   extends NameAndDescription,
+    Executable<Arguments>,
     OptionsBuilder<Arguments> {}

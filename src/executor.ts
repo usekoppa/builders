@@ -1,4 +1,4 @@
-import { CommandContext } from "./context";
+import { CommandContext } from "./commands/context";
 
 export type Executor<Arguments = {}> = (
   ctx: CommandContext<Arguments>

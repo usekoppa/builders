@@ -1,6 +1,15 @@
 import { REST } from "@discordjs/rest";
-import type { ApplicationCommandData, CommandInteraction } from "discord.js";
-import { Routes, Snowflake } from "discord-api-types/v9";
+import type { CommandInteraction } from "discord.js";
+import {
+  APIApplicationCommandInteractionData,
+  APIChatInputApplicationCommandInteractionData,
+  APIChatInputApplicationCommandInteractionDataResolved,
+  ApplicationCommandOptionType,
+  ApplicationCommandType,
+  RESTPostAPIChatInputApplicationCommandsJSONBody,
+  Routes,
+  Snowflake,
+} from "discord-api-types";
 
 import { Subcommand } from "./options/subcommands/subcommand";
 import { SubcommandGroup } from "./options/subcommands/subcommand_group";
@@ -11,7 +20,7 @@ import { createCommandContext } from "./context";
 type CommandBuilderFn = (command: Command) => Command;
 
 export class CommandManager {
-  readonly commands: Command[] = [];
+  readonly commands = new Set<Command>();
 
   registered = false;
 
@@ -21,9 +30,15 @@ export class CommandManager {
     this.#rest = new REST({ version: "9" }).setToken(token);
   }
 
-  addCommand(fn: CommandBuilderFn) {
-    const command = fn(new Command(this));
-    this.commands.push(command);
+  addCommand(command: Command): this;
+  addCommand(fn: CommandBuilderFn): this;
+  addCommand(fnOrCommand: Command | CommandBuilderFn) {
+    const command =
+      fnOrCommand instanceof Command
+        ? fnOrCommand
+        : fnOrCommand(new Command(this));
+
+    this.commands.add(command);
     return this;
   }
 
@@ -37,7 +52,7 @@ export class CommandManager {
     if (commandOrName instanceof Command) {
       command = commandOrName;
     } else {
-      const possibleCommand = this.#findCommand(commandOrName);
+      const possibleCommand = this.findCommand(commandOrName);
       if (typeof possibleCommand === "undefined") {
         throw new Error("Command not found");
       }
@@ -52,39 +67,63 @@ export class CommandManager {
     return this;
   }
 
-  removeCommand(name: string) {
-    const idx = this.commands.findIndex(cmd => cmd.name === name);
-    this.commands.splice(idx, 1);
+  removeCommand(nameOrCommand: string | Command) {
+    let command!: Command;
+    if (typeof nameOrCommand === "string") {
+      const possibleCommand = this.findCommand(nameOrCommand);
+      if (typeof possibleCommand === "undefined") return;
+      command = possibleCommand;
+    } else {
+      command = nameOrCommand;
+    }
+
+    this.commands.delete(command);
     return this;
   }
 
-  async handleInteraction(interaction: CommandInteraction) {
-    const rootCommand = this.commands.find(
-      cmd => cmd.name === interaction.commandName
-    );
+  findCommand(name: string) {
+    let command: Command | undefined;
+    for (const possibleCommand of this.commands) {
+      if (possibleCommand.name === name) {
+        command = possibleCommand;
+        break;
+      }
+    }
 
-    if (typeof rootCommand === "undefined") return;
+    return command;
+  }
 
-    const command: BaseCommand = rootCommand.hasSubcommands()
-      ? searchForSubcommand(interaction, rootCommand.options) ?? rootCommand
-      : rootCommand;
+  async handleInteraction(interaction: APIApplicationCommandInteractionData) {
+    if (interaction.type === ApplicationCommandType.ChatInput) {
+      const rootCommand = this.findCommand(interaction.name);
 
-    if (typeof command.executor !== "undefined") {
-      const ctx = createCommandContext(interaction, command);
+      if (typeof rootCommand === "undefined") return;
 
-      await command.executor(ctx);
+      const command: BaseCommand = rootCommand.hasSubcommands()
+        ? CommandManager.searchForSubcommand(
+            interaction,
+            rootCommand.options
+          ) ?? rootCommand
+        : rootCommand;
+
+      if (typeof command.executor !== "undefined") {
+        const ctx = createCommandContext(interaction, command);
+        await command.executor(ctx);
+      }
     }
   }
 
-  #registerGlobalCommands(commands: ApplicationCommandData[]) {
-    return this.#register(this.#routeURI(), commands);
+  #overwriteGlobalCommands(
+    commands: RESTPostAPIChatInputApplicationCommandsJSONBody[]
+  ) {
+    return this.#overwriteCommands(this.#routeURI(), commands);
   }
 
-  #registerGuildCommands(
+  #overwriteGuildCommands(
     guildID: Snowflake,
-    commands: ApplicationCommandData[]
+    commands: RESTPostAPIChatInputApplicationCommandsJSONBody[]
   ) {
-    return this.#register(this.#routeURI(guildID), commands);
+    return this.#overwriteCommands(this.#routeURI(guildID), commands);
   }
 
   #routeURI(guildID?: Snowflake) {
@@ -95,42 +134,42 @@ export class CommandManager {
     }
   }
 
-  async #register(route: `/${string}`, commands: ApplicationCommandData[]) {
+  async #overwriteCommands(
+    route: `/${string}`,
+    commands: RESTPostAPIChatInputApplicationCommandsJSONBody[]
+  ) {
     await this.#rest.put(route, { body: commands });
   }
 
-  #findCommand(name: string) {
-    return this.commands.find(cmd => cmd.name === name);
-  }
-}
+  private static searchForSubcommand(
+    interaction: APIChatInputApplicationCommandInteractionData,
+    subcommandsOrGroups: Subcommand[] | (Subcommand | SubcommandGroup)[]
+  ) {
+    const { options } = interaction;
 
-function searchForSubcommand(
-  interaction: CommandInteraction,
-  subcommandsOrGroups: Subcommand[] | (Subcommand | SubcommandGroup)[]
-) {
-  const { options } = interaction;
+    let subcommand: Subcommand | undefined;
+    let group: SubcommandGroup | undefined;
 
-  let subcommand: Subcommand | undefined;
-  let group: SubcommandGroup | undefined;
+    for (const groupOrSubcommand of subcommandsOrGroups) {
+      if (groupOrSubcommand instanceof SubcommandGroup) {
+        const potentialGroupName = interaction.options?.find(
+          option => option.type === ApplicationCommandOptionType.SubcommandGroup
+        );
 
-  for (const groupOrSubcommand of subcommandsOrGroups) {
-    if (
-      groupOrSubcommand instanceof SubcommandGroup &&
-      groupOrSubcommand.name === options.getSubcommandGroup(true)
-    ) {
-      group = groupOrSubcommand;
-      subcommand = searchForSubcommand(
-        interaction,
-        group.options as SubcommandGroup[]
-      );
+        group = groupOrSubcommand;
+        subcommand = CommandManager.searchForSubcommand(
+          interaction,
+          group.options as SubcommandGroup[]
+        );
 
-      if (typeof subcommand !== "undefined") break;
+        if (typeof subcommand !== "undefined") break;
+      }
+
+      if (groupOrSubcommand.name === options.getSubcommand(true)) {
+        subcommand = groupOrSubcommand as Subcommand;
+      }
     }
 
-    if (groupOrSubcommand.name === options.getSubcommand(true)) {
-      subcommand = groupOrSubcommand as Subcommand;
-    }
+    return subcommand;
   }
-
-  return subcommand;
 }
