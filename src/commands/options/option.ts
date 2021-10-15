@@ -2,7 +2,10 @@ import type { ApplicationCommandOptionType } from "discord-api-types";
 
 import { NameAndDescription } from "../name_and_description.mixin";
 
-import { ToAPIApplicationCommandOptions } from "./to_api_option";
+import {
+  APICommandOption,
+  ToAPIApplicationCommandOptions,
+} from "./to_api_option";
 
 export type ReducedCommandOptionTypes = Exclude<
   ApplicationCommandOptionType,
@@ -42,7 +45,7 @@ export class Option<
     return this as unknown as Option<OptionType, Name, NewIsRequired>;
   }
 
-  toJSON() {
+  toJSON(): APICommandOption {
     return {
       type: this.type as unknown as ApplicationCommandOptionType,
       name: this.name,

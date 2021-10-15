@@ -67,6 +67,7 @@ export class OptionWithChoices<
 
   addChoice<ChoiceValue extends ChoicesType>(name: string, value: ChoiceValue) {
     if (typeof this.choices === "undefined") Reflect.set(this, "choices", []);
+    this.#verifyChoiceAmount(this.choices!.length + 1);
     this.choices!.push({ name, value });
     return this as unknown as OptionWithChoices<
       OptionType,
@@ -85,8 +86,17 @@ export class OptionWithChoices<
       required: this.required,
     };
 
-    if (typeof this.choices !== "undefined") data.choices = this.choices;
+    if (typeof this.choices !== "undefined") {
+      this.#verifyChoiceAmount();
+      data.choices = this.choices;
+    }
 
     return data;
+  }
+
+  #verifyChoiceAmount(choicesLength = this.choices?.length ?? 0) {
+    if (choicesLength > 25) {
+      throw new TypeError("A maximum of 25 choices is allowed for an option");
+    }
   }
 }
