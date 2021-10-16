@@ -1,6 +1,5 @@
 import { REST } from "@discordjs/rest";
 import {
-  APIApplicationCommandInteractionData,
   APIChatInputApplicationCommandInteractionData,
   ApplicationCommandOptionType,
   ApplicationCommandType,
@@ -9,15 +8,17 @@ import {
   Snowflake,
 } from "discord-api-types";
 
-import type { BaseCommand } from "./base_command.mixin";
-import { Command } from "./command";
-import { Subcommand } from "./options/subcommands/subcommand";
-import { SubcommandGroup } from "./options/subcommands/subcommand_group";
+import { Command } from "../../../old_options_system/chat_input_command";
+import { Subcommand } from "../../../old_options_system/subcommands/subcommand";
+import { SubcommandGroup } from "../../../old_options_system/subcommands/subcommand_group";
+import { ChatInputCommandInteractionData } from "../../api_types/commands";
 import { createCommandContext } from "../../context";
+
+import type { BaseCommand } from "./base.mixin";
 
 type CommandBuilderFn = (command: Command) => Command;
 
-export class ChatManagerManager {
+export class ChatInputCommandManager {
   readonly commands = new Set<Command>();
 
   registered = false;
@@ -91,7 +92,7 @@ export class ChatManagerManager {
     return command;
   }
 
-  async handleInteraction(interaction: APIApplicationCommandInteractionData) {
+  async handleInteraction(interaction: ChatInputCommandInteractionData) {
     if (interaction.type === ApplicationCommandType.ChatInput) {
       const rootCommand = this.findCommand(interaction.name);
 

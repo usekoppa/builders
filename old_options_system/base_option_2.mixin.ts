@@ -4,9 +4,9 @@ import {
   ApplicationCommandOptionType,
 } from "discord-api-types";
 
-import { NameAndDescription } from "../../name_and_description.mixin";
+import { NameAndDescription } from "../src/commands/chat_input/name_and_description.mixin";
 
-import { ToAPIApplicationCommandOptions } from "../to_api_option";
+import { ToAPIApplicationCommandOptions } from "./to_api_option";
 
 export type OptionWithChoicesTypes =
   | ApplicationCommandOptionType.String

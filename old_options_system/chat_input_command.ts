@@ -5,68 +5,38 @@ import {
   Snowflake,
 } from "discord-api-types";
 
-import { Option } from "./options/old_options_system/option_types/general_option";
-import { OptionWithChoices } from "./options/old_options_system/option_types/option_with_choices";
-import { OptionsBuilder } from "./options/options_builder.mixin";
-import { Subcommand } from "./options/subcommands/subcommand";
-import { SubcommandGroup } from "./options/subcommands/subcommand_group";
-import { ToAPIApplicationCommandOptions } from "./options/to_api_option";
-import { BaseCommand } from "./base_command.mixin";
-import { CommandManager } from "./chat_command_manager";
-import { NameAndDescription } from "./name_and_description.mixin";
+import { BaseChatInputCommand } from "../src/commands/chat_input/base.mixin";
+import { ChatInputCommandManager } from "../src/commands/chat_input/manager.mixin";
+import { NameAndDescription } from "../src/commands/chat_input/name_and_description.mixin";
+import { OptionsBuilder } from "../src/commands/chat_input/options/options_builder.mixin";
 
-interface IncompleteCommandWithSubcommands extends Command {
+import { Subcommand } from "./subcommands/subcommand";
+import { SubcommandGroup } from "./subcommands/subcommand_group";
+import { ToAPIApplicationCommandOptions } from "./to_api_option";
+
+interface IncompleteChatInputCommandWithSubcommands extends ChatInputCommand {
   readonly executor: undefined;
   readonly options: (Subcommand | SubcommandGroup)[];
   hasSubcommands(): true;
 }
 
-export type CommandWithSubcommands = Omit<
-  IncompleteCommandWithSubcommands,
+export type ChatInputCommandWithSubcommands = Omit<
+  IncompleteChatInputCommandWithSubcommands,
   Exclude<keyof OptionsBuilder, "options">
 >;
 
-export class Command<Arguments = {}> extends BaseCommand<Arguments> {
+export class ChatInputCommand<
+  Arguments = {}
+> extends BaseChatInputCommand<Arguments> {
   readonly defaultPermission: boolean = true;
-
-  #localGuilds = new Set<Snowflake>();
-  #cachedGuilds = new Set<Snowflake>();
 
   #hasSubcommands: false = false;
 
-  constructor(private manager: CommandManager) {
+  constructor(private manager: ChatInputCommandManager) {
     super();
   }
 
-  get guilds() {
-    return this.#cachedGuilds;
-  }
-
-  setGuilds(guilds: Snowflake[]) {
-    this.#localGuilds = new Set(guilds);
-    if (this.manager.registered) {
-      this.#cachedGuilds = new Set([
-        ...this.#cachedGuilds,
-        ...this.#localGuilds,
-      ]);
-    }
-
-    return this;
-  }
-
-  addGuild(guildId: Snowflake) {
-    this.#localGuilds.add(guildId);
-    this.#cachedGuilds.add(guildId);
-    return this;
-  }
-
-  removeGuild(guildId: Snowflake) {
-    this.#localGuilds.delete(guildId);
-    this.#cachedGuilds.delete(guildId);
-    return this;
-  }
-
-  hasSubcommands(): this is CommandWithSubcommands {
+  hasSubcommands(): this is ChatInputCommandWithSubcommands {
     return this.#hasSubcommands;
   }
 
@@ -135,4 +105,6 @@ export class Command<Arguments = {}> extends BaseCommand<Arguments> {
 
     Reflect.set(command, "options", options);
   }
+
+  private static manager = ChatCommandManager.getInstance();
 }

@@ -1,9 +1,9 @@
 import { APIApplicationCommandOption, ChannelType } from "discord-api-types";
 
-export type APICommandOption = APIApplicationCommandOption & {
+export type AasdfasdfPICommandOption = APIApplicationCommandOption & {
   channel_types?: ChannelType[] | null;
 };
 
 export interface ToAPIApplicationCommandOptions {
-  toJSON(): APICommandOption;
+  toJSON(): APasdfdfsICommandOption;
 }

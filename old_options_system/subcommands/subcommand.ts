@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionType } from "discord-api-types";
 
-import { BaseCommand } from "../../base_command.mixin";
+import { BaseCommand } from "../../src/commands/chat_input/base.mixin";
 import { ToAPIApplicationCommandOptions } from "../to_api_option";
 
 export class Subcommand<Arguments = {}>

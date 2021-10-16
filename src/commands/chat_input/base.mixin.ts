@@ -2,12 +2,11 @@ import { mix } from "ts-mixer";
 
 import { Executable } from "../../executable.mixin";
 
-import { OptionsBuilder } from "./options/options_builder.mixin";
 import { NameAndDescription } from "./name_and_description.mixin";
 
-@mix(NameAndDescription, OptionsBuilder, Executable)
+@mix(NameAndDescription, Executable)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export abstract class BaseCommand<Arguments = {}> {
+export abstract class BaseChatInputCommand<Arguments = {}> {
   setName(name: string) {
     return this._setName(name);
   }
@@ -17,7 +16,6 @@ export abstract class BaseCommand<Arguments = {}> {
   }
 }
 
-export interface BaseCommand<Arguments>
+export interface BaseChatInputCommand<Arguments>
   extends NameAndDescription,
-    Executable<Arguments>,
-    OptionsBuilder<Arguments> {}
+    Executable<Arguments> {}

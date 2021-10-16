@@ -1,32 +1,15 @@
-import { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType } from "discord-api-types";
 
-import { BaseCommand } from "../base_command.mixin";
+import { Options } from "../../../api_types/options";
 
-import { AnyOption } from "./old_options_system/any_option";
-import type { ReducedCommandOptionTypes } from "./old_options_system/option_types/general_option";
-import { Option } from "./old_options_system/option_types/general_option";
-import {
-  OptionWithChoices,
-  OptionWithChoicesTypes,
-} from "./old_options_system/option_types/option_with_choices";
-import {
-  InteractionArgumentsResolver,
-  Resolver,
-} from "./interaction_arguments_resolver";
-import type {
-  ResolvedMember,
-  ResolvedMentionable,
-  ResolvedRole,
-  ResolvedUser,
-} from "./resolved_options";
-import { ToAPIApplicationCommandOptions } from "./to_api_option";
+import { DataOption } from "./data_option";
+import { Option } from "./option.mixin";
 
 type AddOptionFn<
-  OptionType extends ReducedCommandOptionTypes,
+  Type extends Options.DataType,
   Name extends string,
   IsRequired extends boolean
-> = (option: Option<OptionType>) => Option<OptionType, Name, IsRequired>;
+> = (option: Option<Type>) => Option<Type, Name, IsRequired>;
 
 type AddOptionWithChoiceFn<
   OptionType extends OptionWithChoicesTypes,
@@ -44,19 +27,19 @@ type Argument<
   IsRequired extends boolean
 > = Record<Name, ArgumentType | (IsRequired extends true ? never : undefined)>;
 
-export abstract class OptionsBuilder<Arguments = {}> {
-  readonly options: ToAPIApplicationCommandOptions[] = [];
-
-  protected resolver = new InteractionArgumentsResolver();
+export abstract class OptionsBuilder<Parent extends any, Arguments = {}> {
+  readonly options: DataOption[] = [];
 
   addBooleanOption<Name extends string, IsRequired extends boolean>(
-    fn: AddOptionFn<ApplicationCommandOptionType.Boolean, Name, IsRequired>
+    fn: AddOptionFn<Options.Type.Boolean, Name, IsRequired>
   ) {
-    const option = fn(new Option(ApplicationCommandOptionType.Boolean));
-    this.#addOption(option, "Boolean");
-    return this as unknown as BaseCommand<
+    const option = fn(new DataOption(Options.Type.Boolean));
+    this.#addOption(option);
+    return this as unknown as OptionsBuilder<
+      Parent,
       Arguments & Argument<boolean, Name, IsRequired>
-    >;
+    > &
+      Parent;
   }
 
   addIntegerOption<
@@ -77,9 +60,11 @@ export abstract class OptionsBuilder<Arguments = {}> {
     );
 
     this.#addOption(option, "Integer");
-    return this as unknown as BaseCommand<
+    return this as unknown as OptionsBuilder<
+      Parent,
       Arguments & Argument<ChoiceValues, Name, IsRequired>
-    >;
+    > &
+      Parent;
   }
 
   addMemberOption<Name extends string, IsRequired extends boolean>(
@@ -87,9 +72,11 @@ export abstract class OptionsBuilder<Arguments = {}> {
   ) {
     const option = fn(new Option(ApplicationCommandOptionType.User));
     this.#addOption(option, "Member");
-    return this as unknown as BaseCommand<
+    return this as unknown as OptionsBuilder<
+      Parent,
       Arguments & Argument<ResolvedMember, Name, IsRequired>
-    >;
+    > &
+      Parent;
   }
 
   addMentionableOption<Name extends string, IsRequired extends boolean>(
@@ -97,7 +84,7 @@ export abstract class OptionsBuilder<Arguments = {}> {
   ) {
     const option = fn(new Option(ApplicationCommandOptionType.Mentionable));
     this.#addOption(option, "Mentionable");
-    return this as unknown as BaseCommand<
+    return this as unknown as OptionsBuilder<
       Arguments & Argument<ResolvedMentionable, Name, IsRequired>
     >;
   }
@@ -121,7 +108,7 @@ export abstract class OptionsBuilder<Arguments = {}> {
 
     this.#addOption(option, "Number");
     this.options.push(option);
-    return this as unknown as BaseCommand<
+    return this as unknown as OptionsBuilder<
       Arguments & Argument<ChoiceValues, Name, IsRequired>
     >;
   }
@@ -131,7 +118,7 @@ export abstract class OptionsBuilder<Arguments = {}> {
   ) {
     const option = fn(new Option(ApplicationCommandOptionType.Role));
     this.#addOption(option, "Role");
-    return this as unknown as BaseCommand<
+    return this as unknown as OptionsBuilder<
       Arguments & Argument<ResolvedRole, Name, IsRequired>
     >;
   }
@@ -154,7 +141,7 @@ export abstract class OptionsBuilder<Arguments = {}> {
     );
 
     this.#addOption(option, "String");
-    return this as unknown as BaseCommand<
+    return this as unknown as OptionsBuilder<
       Arguments & Argument<ChoiceValues, Name, IsRequired>
     >;
   }
@@ -164,7 +151,7 @@ export abstract class OptionsBuilder<Arguments = {}> {
   ) {
     const option = fn(new Option(ApplicationCommandOptionType.User));
     this.#addOption(option, "User");
-    return this as unknown as BaseCommand<
+    return this as unknown as OptionsBuilder<
       Arguments & Argument<ResolvedUser, Name, IsRequired>
     >;
   }
@@ -175,8 +162,17 @@ export abstract class OptionsBuilder<Arguments = {}> {
     ) as Readonly<Arguments>;
   }
 
-  #addOption(option: AnyOption, resolver: Resolver) {
-    this.options.push(option);
+  #addOption(option: DataOption) {
+    this.options[option.required ? "unshift" : "push"](option);
     this.resolver.addOption(option.name, option.required, resolver);
+  }
+
+  protected getArguments(options: Options.Incoming.DataOption[]) {
+    const args = new Proxy(
+      {},
+      {
+        get(_, property) {},
+      }
+    ) as Arguments;
   }
 }
