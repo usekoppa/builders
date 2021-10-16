@@ -3,17 +3,17 @@ import { ApplicationCommandOptionType } from "discord-api-types";
 
 import { BaseCommand } from "../base_command.mixin";
 
-import { AnyOption } from "./any_option";
+import { AnyOption } from "./old_options_system/any_option";
+import type { ReducedCommandOptionTypes } from "./old_options_system/option_types/general_option";
+import { Option } from "./old_options_system/option_types/general_option";
+import {
+  OptionWithChoices,
+  OptionWithChoicesTypes,
+} from "./old_options_system/option_types/option_with_choices";
 import {
   InteractionArgumentsResolver,
   Resolver,
 } from "./interaction_arguments_resolver";
-import type { ReducedCommandOptionTypes } from "./option";
-import { Option } from "./option";
-import {
-  OptionWithChoices,
-  OptionWithChoicesTypes,
-} from "./option_with_choices";
 import type {
   ResolvedMember,
   ResolvedMentionable,

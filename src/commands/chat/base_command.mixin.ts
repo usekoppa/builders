@@ -1,6 +1,6 @@
 import { mix } from "ts-mixer";
 
-import { Executable } from "../executable.mixin";
+import { Executable } from "../../executable.mixin";
 
 import { OptionsBuilder } from "./options/options_builder.mixin";
 import { NameAndDescription } from "./name_and_description.mixin";

@@ -2,19 +2,21 @@ import {
   ApplicationCommandType,
   RESTPostAPIContextMenuApplicationCommandsJSONBody,
 } from "discord-api-types";
+import { mix } from "ts-mixer";
 
-import { Name } from "../name.mixin";
+import { Executable } from "../../executable.mixin";
+import { Name } from "../../name.mixin";
 
-export class Menu extends Name {
+@mix(Name, Executable)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export class Menu<Arguments = {}> {
   readonly name!: string;
 
   constructor(
     public readonly type:
       | ApplicationCommandType.Message
       | ApplicationCommandType.User
-  ) {
-    super();
-  }
+  ) {}
 
   setName(name: string) {
     return this._setName(name);
@@ -27,3 +29,5 @@ export class Menu extends Name {
     };
   }
 }
+
+export interface Menu<Arguments = {}> extends Name, Executable<Arguments> {}

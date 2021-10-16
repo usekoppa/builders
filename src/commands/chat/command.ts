@@ -5,14 +5,14 @@ import {
   Snowflake,
 } from "discord-api-types";
 
-import { Option } from "./options/option";
-import { OptionWithChoices } from "./options/option_with_choices";
+import { Option } from "./options/old_options_system/option_types/general_option";
+import { OptionWithChoices } from "./options/old_options_system/option_types/option_with_choices";
 import { OptionsBuilder } from "./options/options_builder.mixin";
 import { Subcommand } from "./options/subcommands/subcommand";
 import { SubcommandGroup } from "./options/subcommands/subcommand_group";
 import { ToAPIApplicationCommandOptions } from "./options/to_api_option";
 import { BaseCommand } from "./base_command.mixin";
-import { CommandManager } from "./manager";
+import { CommandManager } from "./chat_command_manager";
 import { NameAndDescription } from "./name_and_description.mixin";
 
 interface IncompleteCommandWithSubcommands extends Command {
@@ -116,13 +116,20 @@ export class Command<Arguments = {}> extends BaseCommand<Arguments> {
     const options = data.options?.map(rawOption => {
       let option: NameAndDescription & ToAPIApplicationCommandOptions;
 
-      if (
-        rawOption.type === ApplicationCommandOptionType.String ||
-        rawOption.type === ApplicationCommandOptionType.Integer ||
-        rawOption.type === ApplicationCommandOptionType.Number
-      ) {
-        const optionWithChoices = new OptionWithChoices(rawOption.type);
-        Reflect.set(optionWithChoices, "choices", rawOption.choices);
+      switch (rawOption.type) {
+        case ApplicationCommandOptionType.String:
+        case ApplicationCommandOptionType.Integer:
+        case ApplicationCommandOptionType.Number:
+          const optionWithChoices = new OptionWithChoices(rawOption.type);
+          optionWithChoices.setName(rawOption.name);
+          Reflect.set(optionWithChoices, "choices", rawOption.choices);
+          break;
+        case ApplicationCommandOptionType.Subcommand:
+          break;
+        case ApplicationCommandOptionType.SubcommandGroup:
+          break;
+        default:
+          break;
       }
     });
 

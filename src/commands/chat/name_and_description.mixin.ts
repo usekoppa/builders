@@ -1,8 +1,8 @@
-import { Name } from "../name.mixin";
+import { Name } from "../../name.mixin";
 import {
   validateMaxStringLength,
   validateValueIsString,
-} from "../string_validators";
+} from "../../string_validators";
 
 export abstract class NameAndDescription extends Name {
   readonly description!: string;

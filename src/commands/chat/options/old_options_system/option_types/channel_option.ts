@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionType, ChannelType } from "discord-api-types";
 
-import { Option } from "./option";
+import { Option } from "./option_types/option";
 
 export class ChannelOption<
   Name extends string = string,

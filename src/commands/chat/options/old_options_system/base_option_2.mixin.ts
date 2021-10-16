@@ -4,16 +4,16 @@ import {
   ApplicationCommandOptionType,
 } from "discord-api-types";
 
-import { NameAndDescription } from "../name_and_description.mixin";
+import { NameAndDescription } from "../../name_and_description.mixin";
 
-import { ToAPIApplicationCommandOptions } from "./to_api_option";
+import { ToAPIApplicationCommandOptions } from "../to_api_option";
 
 export type OptionWithChoicesTypes =
   | ApplicationCommandOptionType.String
   | ApplicationCommandOptionType.Integer
   | ApplicationCommandOptionType.Number;
 
-export class OptionWithChoices<
+export class BaseOption<
     OptionType extends OptionWithChoicesTypes,
     ChoicesType extends string | number,
     Name extends string = string,
@@ -99,4 +99,6 @@ export class OptionWithChoices<
       throw new TypeError("A maximum of 25 choices is allowed for an option");
     }
   }
+
+  static createOptionWithChoicesWithAPIData() {}
 }
