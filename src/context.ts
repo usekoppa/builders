@@ -1,6 +1,6 @@
 import { CommandInteraction } from "discord.js";
 
-import { BaseCommand } from "./commands/chat_input/base.mixin";
+import { BaseCommand } from "./commands/chat_input/basic_chat_input_command.mixin";
 
 export interface CommandContext<Arguments = {}> {
   args: Arguments;

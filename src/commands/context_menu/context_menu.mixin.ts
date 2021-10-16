@@ -3,9 +3,11 @@ import {
   RESTPostAPIContextMenuApplicationCommandsJSONBody,
 } from "discord-api-types";
 
-import { BaseCommand } from "../base_command.mixin";
+import { ApplicationCommand } from "../application_command.mixin";
 
-export abstract class Menu<Arguments = {}> extends BaseCommand<Arguments> {
+export abstract class Menu<
+  Arguments = {}
+> extends ApplicationCommand<Arguments> {
   constructor(
     public readonly type:
       | ApplicationCommandType.Message

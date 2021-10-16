@@ -1,16 +1,13 @@
-import {
-  ApplicationCommandType,
-  RESTPostAPIApplicationCommandsJSONBody,
-  Snowflake,
-} from "discord-api-types";
+import { ApplicationCommandType, Snowflake } from "discord-api-types";
 import { mix } from "ts-mixer";
 
+import { Commands } from "../api_types/commands";
 import { Executable } from "../executable.mixin";
 import { Name } from "../name.mixin";
 
 @mix(Name, Executable)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export abstract class BaseCommand<Arguments extends {}> {
+export abstract class ApplicationCommand<Arguments extends {}> {
   constructor(public readonly type: ApplicationCommandType) {}
 
   #localGuilds = new Set<Snowflake>();
@@ -42,9 +39,9 @@ export abstract class BaseCommand<Arguments extends {}> {
     return this;
   }
 
-  abstract toJSON(): RESTPostAPIApplicationCommandsJSONBody;
+  abstract toJSON(): Commands.Outgoing.ApplicationCommand;
 }
 
-export interface BaseCommand<Arguments = {}>
+export interface ApplicationCommand<Arguments = {}>
   extends Name,
     Executable<Arguments> {}

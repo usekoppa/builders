@@ -3,7 +3,8 @@ import { ApplicationCommandOptionType } from "discord-api-types";
 import { Options } from "../../../api_types/options";
 
 import { DataOption } from "./data_option";
-import { Option } from "./option.mixin";
+import { Option, OptionArgumentValues } from "./option.mixin";
+import { OptionWithChoices } from "./option_with_choices";
 
 type AddOptionFn<
   Type extends Options.DataType,
@@ -12,14 +13,14 @@ type AddOptionFn<
 > = (option: Option<Type>) => Option<Type, Name, IsRequired>;
 
 type AddOptionWithChoiceFn<
-  OptionType extends OptionWithChoicesTypes,
-  ChoicesType extends string | number,
+  Type extends Options.ChoiceType,
   Name extends string,
   IsRequired extends boolean,
-  ChoiceValues extends ChoicesType
+  Value extends OptionArgumentValues[Type],
+  ChoiceAdded extends boolean
 > = (
-  option: OptionWithChoices<OptionType, ChoicesType>
-) => OptionWithChoices<OptionType, ChoicesType, Name, IsRequired, ChoiceValues>;
+  option: OptionWithChoices<Type, Name, IsRequired, Value, ChoiceAdded>
+) => OptionWithChoices<Type, Name, IsRequired, Value, ChoiceAdded>;
 
 type Argument<
   ArgumentType,
@@ -156,11 +157,6 @@ export abstract class OptionsBuilder<Parent extends any, Arguments = {}> {
     >;
   }
 
-  getInteractionArguments(interaction: CommandInteraction) {
-    return this.resolver.getInteractionArguments(
-      interaction
-    ) as Readonly<Arguments>;
-  }
 
   #addOption(option: DataOption) {
     this.options[option.required ? "unshift" : "push"](option);

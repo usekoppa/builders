@@ -1,25 +1,14 @@
 import { REST } from "@discordjs/rest";
-import {
-  APIChatInputApplicationCommandInteractionData,
-  ApplicationCommandOptionType,
-  ApplicationCommandType,
-  RESTPostAPIChatInputApplicationCommandsJSONBody,
-  Routes,
-  Snowflake,
-} from "discord-api-types";
+import { Routes, Snowflake } from "discord-api-types";
 
-import { Command } from "../../../old_options_system/chat_input_command";
-import { Subcommand } from "../../../old_options_system/subcommands/subcommand";
-import { SubcommandGroup } from "../../../old_options_system/subcommands/subcommand_group";
-import { ChatInputCommandInteractionData } from "../../api_types/commands";
-import { createCommandContext } from "../../context";
+import { Commands } from "../../api_types/commands";
 
-import type { BaseCommand } from "./base.mixin";
+import { ChatInputCommand } from "./command";
 
-type CommandBuilderFn = (command: Command) => Command;
+type CommandBuilderFn = (command: ChatInputCommand) => ChatInputCommand;
 
 export class ChatInputCommandManager {
-  readonly commands = new Set<Command>();
+  readonly commands = new Set<ChatInputCommand>();
 
   registered = false;
 
@@ -29,26 +18,26 @@ export class ChatInputCommandManager {
     this.#rest = new REST({ version: "9" }).setToken(token);
   }
 
-  addCommand(command: Command): this;
+  addCommand(command: ChatInputCommand): this;
   addCommand(fn: CommandBuilderFn): this;
-  addCommand(fnOrCommand: Command | CommandBuilderFn) {
+  addCommand(fnOrCommand: ChatInputCommand | CommandBuilderFn) {
     const command =
-      fnOrCommand instanceof Command
+      fnOrCommand instanceof ChatInputCommand
         ? fnOrCommand
-        : fnOrCommand(new Command(this));
+        : fnOrCommand(new ChatInputCommand());
 
     this.commands.add(command);
     return this;
   }
 
-  updateCommand(command: Command): this;
+  updateCommand(command: ChatInputCommand): this;
   updateCommand(name: string, fn: CommandBuilderFn): this;
   updateCommand(
-    commandOrName: string | Command,
-    fn?: (command: Command) => Command
+    commandOrName: string | ChatInputCommand,
+    fn?: (command: ChatInputCommand) => ChatInputCommand
   ) {
-    let command: Command;
-    if (commandOrName instanceof Command) {
+    let command: ChatInputCommand;
+    if (commandOrName instanceof ChatInputCommand) {
       command = commandOrName;
     } else {
       const possibleCommand = this.findCommand(commandOrName);
@@ -66,8 +55,8 @@ export class ChatInputCommandManager {
     return this;
   }
 
-  removeCommand(nameOrCommand: string | Command) {
-    let command!: Command;
+  removeCommand(nameOrCommand: string | ChatInputCommand) {
+    let command!: ChatInputCommand;
     if (typeof nameOrCommand === "string") {
       const possibleCommand = this.findCommand(nameOrCommand);
       if (typeof possibleCommand === "undefined") return;
@@ -81,7 +70,7 @@ export class ChatInputCommandManager {
   }
 
   findCommand(name: string) {
-    let command: Command | undefined;
+    let command: ChatInputCommand | undefined;
     for (const possibleCommand of this.commands) {
       if (possibleCommand.name === name) {
         command = possibleCommand;
@@ -92,35 +81,31 @@ export class ChatInputCommandManager {
     return command;
   }
 
-  async handleInteraction(interaction: ChatInputCommandInteractionData) {
-    if (interaction.type === ApplicationCommandType.ChatInput) {
-      const rootCommand = this.findCommand(interaction.name);
+  // async handleInteraction(
+  //   interaction: Commands.ChatInput.Incoming.Interaction
+  // ) {
+  //   const rootCommand = this.findCommand(interaction.data.name);
 
-      if (typeof rootCommand === "undefined") return;
+  //   if (typeof rootCommand === "undefined") return;
 
-      const command: BaseCommand = rootCommand.hasSubcommands()
-        ? CommandManager.searchForSubcommand(
-            interaction,
-            rootCommand.options
-          ) ?? rootCommand
-        : rootCommand;
+  //   const command: BaseCommand = rootCommand.hasSubcommands()
+  //     ? CommandManager.searchForSubcommand(interaction, rootCommand.options) ??
+  //       rootCommand
+  //     : rootCommand;
 
-      if (typeof command.executor !== "undefined") {
-        const ctx = createCommandContext(interaction, command);
-        await command.executor(ctx);
-      }
-    }
-  }
+  //   if (typeof command.executor !== "undefined") {
+  //     const ctx = createCommandContext(interaction, command);
+  //     await command.executor(ctx);
+  //   }
+  // }
 
-  #overwriteGlobalCommands(
-    commands: RESTPostAPIChatInputApplicationCommandsJSONBody[]
-  ) {
+  #overwriteGlobalCommands(commands: Commands.ChatInput.Outgoing.Command[]) {
     return this.#overwriteCommands(this.#routeURI(), commands);
   }
 
   #overwriteGuildCommands(
     guildID: Snowflake,
-    commands: RESTPostAPIChatInputApplicationCommandsJSONBody[]
+    commands: Commands.ChatInput.Outgoing.Command[]
   ) {
     return this.#overwriteCommands(this.#routeURI(guildID), commands);
   }
@@ -135,40 +120,40 @@ export class ChatInputCommandManager {
 
   async #overwriteCommands(
     route: `/${string}`,
-    commands: RESTPostAPIChatInputApplicationCommandsJSONBody[]
+    commands: Commands.Outgoing.ApplicationCommand[]
   ) {
     await this.#rest.put(route, { body: commands });
   }
 
-  private static searchForSubcommand(
-    interaction: APIChatInputApplicationCommandInteractionData,
-    subcommandsOrGroups: Subcommand[] | (Subcommand | SubcommandGroup)[]
-  ) {
-    const { options } = interaction;
+  // private static searchForSubcommand(
+  //   interaction: APIChatInputApplicationCommandInteractionData,
+  //   subcommandsOrGroups: Subcommand[] | (Subcommand | SubcommandGroup)[]
+  // ) {
+  //   const { options } = interaction;
 
-    let subcommand: Subcommand | undefined;
-    let group: SubcommandGroup | undefined;
+  //   let subcommand: Subcommand | undefined;
+  //   let group: SubcommandGroup | undefined;
 
-    for (const groupOrSubcommand of subcommandsOrGroups) {
-      if (groupOrSubcommand instanceof SubcommandGroup) {
-        const potentialGroupName = interaction.options?.find(
-          option => option.type === ApplicationCommandOptionType.SubcommandGroup
-        );
+  //   for (const groupOrSubcommand of subcommandsOrGroups) {
+  //     if (groupOrSubcommand instanceof SubcommandGroup) {
+  //       const potentialGroupName = interaction.options?.find(
+  //         option => option.type === ApplicationCommandOptionType.SubcommandGroup
+  //       );
 
-        group = groupOrSubcommand;
-        subcommand = CommandManager.searchForSubcommand(
-          interaction,
-          group.options as SubcommandGroup[]
-        );
+  //       group = groupOrSubcommand;
+  //       subcommand = CommandManager.searchForSubcommand(
+  //         interaction,
+  //         group.options as SubcommandGroup[]
+  //       );
 
-        if (typeof subcommand !== "undefined") break;
-      }
+  //       if (typeof subcommand !== "undefined") break;
+  //     }
 
-      if (groupOrSubcommand.name === options.getSubcommand(true)) {
-        subcommand = groupOrSubcommand as Subcommand;
-      }
-    }
+  //     if (groupOrSubcommand.name === options.getSubcommand(true)) {
+  //       subcommand = groupOrSubcommand as Subcommand;
+  //     }
+  //   }
 
-    return subcommand;
-  }
+  //   return subcommand;
+  // }
 }
