@@ -7,7 +7,6 @@ import {
 } from "discord-api-types";
 
 import { Options } from "../../../api_types/options";
-import { Executor } from "../../../executor";
 import { NameAndDescription } from "../name_and_description.mixin";
 
 import { Subcommand } from "./subcommand";
