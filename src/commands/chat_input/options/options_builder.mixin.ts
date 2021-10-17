@@ -1,174 +1,72 @@
-import { ApplicationCommandOptionType } from "discord-api-types";
-
 import { Options } from "../../../api_types/options";
 
 import { DataOption } from "./data_option";
-import { Option, OptionArgumentValues } from "./option.mixin";
+import { Option } from "./option.mixin";
 import { OptionWithChoices } from "./option_with_choices";
 
-type AddOptionFn<
-  Type extends Options.DataType,
-  Name extends string,
-  IsRequired extends boolean
-> = (option: Option<Type>) => Option<Type, Name, IsRequired>;
+type OptionArgument<InputOption> = InputOption extends Option<
+  Options.Type,
+  infer Name,
+  infer IsRequired,
+  infer Value
+>
+  ? Record<Name, Value | (IsRequired extends true ? never : undefined)>
+  : never;
 
-type AddOptionWithChoiceFn<
-  Type extends Options.ChoiceType,
-  Name extends string,
-  IsRequired extends boolean,
-  Value extends OptionArgumentValues[Type],
-  ChoiceAdded extends boolean
-> = (
-  option: OptionWithChoices<Type, Name, IsRequired, Value, ChoiceAdded>
-) => OptionWithChoices<Type, Name, IsRequired, Value, ChoiceAdded>;
+type BuilderInput<InputOption extends Option = Option> =
+  | InputOption
+  | ((option: InputOption) => InputOption);
 
-type Argument<
-  ArgumentType,
-  Name extends string,
-  IsRequired extends boolean
-> = Record<Name, ArgumentType | (IsRequired extends true ? never : undefined)>;
+export abstract class OptionsBuilder<Arguments = {}> {
+  readonly options: Option[] = [];
 
-export abstract class OptionsBuilder<Parent extends any, Arguments = {}> {
-  readonly options: DataOption[] = [];
-
-  addBooleanOption<Name extends string, IsRequired extends boolean>(
-    fn: AddOptionFn<Options.Type.Boolean, Name, IsRequired>
-  ) {
-    const option = fn(new DataOption(Options.Type.Boolean));
-    this.#addOption(option);
-    return this as unknown as OptionsBuilder<
-      Parent,
-      Arguments & Argument<boolean, Name, IsRequired>
-    > &
-      Parent;
+  addBooleanOption(input: BuilderInput<DataOption<Options.Type.Boolean>>) {
+    return this.#addOption(DataOption, Options.Type.Boolean, input);
   }
 
-  addIntegerOption<
-    Name extends string,
-    IsRequired extends boolean,
-    ChoiceValues extends number
-  >(
-    fn: AddOptionWithChoiceFn<
-      ApplicationCommandOptionType.Integer,
-      number,
-      Name,
-      IsRequired,
-      ChoiceValues
-    >
+  addIntegerOption(
+    input: BuilderInput<OptionWithChoices<Options.Type.Integer>>
   ) {
-    const option = fn(
-      new OptionWithChoices(ApplicationCommandOptionType.Integer)
-    );
-
-    this.#addOption(option, "Integer");
-    return this as unknown as OptionsBuilder<
-      Parent,
-      Arguments & Argument<ChoiceValues, Name, IsRequired>
-    > &
-      Parent;
+    return this.#addOption(OptionWithChoices, Options.Type.Integer, input);
   }
 
-  addMemberOption<Name extends string, IsRequired extends boolean>(
-    fn: AddOptionFn<ApplicationCommandOptionType.User, Name, IsRequired>
+  addMentionableOption(
+    input: BuilderInput<DataOption<Options.Type.Mentionable>>
   ) {
-    const option = fn(new Option(ApplicationCommandOptionType.User));
-    this.#addOption(option, "Member");
-    return this as unknown as OptionsBuilder<
-      Parent,
-      Arguments & Argument<ResolvedMember, Name, IsRequired>
-    > &
-      Parent;
+    return this.#addOption(DataOption, Options.Type.Mentionable, input);
   }
 
-  addMentionableOption<Name extends string, IsRequired extends boolean>(
-    fn: AddOptionFn<ApplicationCommandOptionType.Mentionable, Name, IsRequired>
+  addNumberOption(input: BuilderInput<OptionWithChoices<Options.Type.Number>>) {
+    return this.#addOption(OptionWithChoices, Options.Type.Number, input);
+  }
+
+  addRoleOption(input: BuilderInput<DataOption<Options.Type.Role>>) {
+    return this.#addOption(DataOption, Options.Type.Role, input);
+  }
+
+  addStringOption(input: BuilderInput<OptionWithChoices<Options.Type.String>>) {
+    return this.#addOption(OptionWithChoices, Options.Type.String, input);
+  }
+
+  addUserOption(input: BuilderInput<DataOption<Options.Type.User>>) {
+    return this.#addOption(DataOption, Options.Type.User, input);
+  }
+
+  #addOption<Type extends Options.Type, InputOption extends Option<Type>>(
+    NewOption: { new (type: Type): InputOption & unknown },
+    type: Type,
+    input: BuilderInput<InputOption>
   ) {
-    const option = fn(new Option(ApplicationCommandOptionType.Mentionable));
-    this.#addOption(option, "Mentionable");
+    const option = input instanceof Option ? input : input(new NewOption(type));
+
+    this.options[
+      (option as unknown as DataOption | OptionWithChoices).required
+        ? "unshift"
+        : "push"
+    ](option);
+
     return this as unknown as OptionsBuilder<
-      Arguments & Argument<ResolvedMentionable, Name, IsRequired>
+      Arguments & OptionArgument<typeof option>
     >;
-  }
-
-  addNumberOption<
-    Name extends string,
-    IsRequired extends boolean,
-    ChoiceValues extends number
-  >(
-    fn: AddOptionWithChoiceFn<
-      ApplicationCommandOptionType.Number,
-      number,
-      Name,
-      IsRequired,
-      ChoiceValues
-    >
-  ) {
-    const option = fn(
-      new OptionWithChoices(ApplicationCommandOptionType.Number)
-    );
-
-    this.#addOption(option, "Number");
-    this.options.push(option);
-    return this as unknown as OptionsBuilder<
-      Arguments & Argument<ChoiceValues, Name, IsRequired>
-    >;
-  }
-
-  addRoleOption<Name extends string, IsRequired extends boolean>(
-    fn: AddOptionFn<ApplicationCommandOptionType.Role, Name, IsRequired>
-  ) {
-    const option = fn(new Option(ApplicationCommandOptionType.Role));
-    this.#addOption(option, "Role");
-    return this as unknown as OptionsBuilder<
-      Arguments & Argument<ResolvedRole, Name, IsRequired>
-    >;
-  }
-
-  addStringOption<
-    Name extends string,
-    IsRequired extends boolean,
-    ChoiceValues extends string
-  >(
-    fn: AddOptionWithChoiceFn<
-      ApplicationCommandOptionType.String,
-      string,
-      Name,
-      IsRequired,
-      ChoiceValues
-    >
-  ) {
-    const option = fn(
-      new OptionWithChoices(ApplicationCommandOptionType.String)
-    );
-
-    this.#addOption(option, "String");
-    return this as unknown as OptionsBuilder<
-      Arguments & Argument<ChoiceValues, Name, IsRequired>
-    >;
-  }
-
-  addUserOption<Name extends string, IsRequired extends boolean>(
-    fn: AddOptionFn<ApplicationCommandOptionType.User, Name, IsRequired>
-  ) {
-    const option = fn(new Option(ApplicationCommandOptionType.User));
-    this.#addOption(option, "User");
-    return this as unknown as OptionsBuilder<
-      Arguments & Argument<ResolvedUser, Name, IsRequired>
-    >;
-  }
-
-
-  #addOption(option: DataOption) {
-    this.options[option.required ? "unshift" : "push"](option);
-    this.resolver.addOption(option.name, option.required, resolver);
-  }
-
-  protected getArguments(options: Options.Incoming.DataOption[]) {
-    const args = new Proxy(
-      {},
-      {
-        get(_, property) {},
-      }
-    ) as Arguments;
   }
 }

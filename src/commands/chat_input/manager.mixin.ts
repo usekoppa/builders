@@ -1,7 +1,7 @@
-import { REST } from "@discordjs/rest";
-import { Routes, Snowflake } from "discord-api-types";
+// import { REST } from "@discordjs/rest";
+// import { /* Routes, */ Snowflake } from "discord-api-types";
 
-import { Commands } from "../../api_types/commands";
+// import { Commands } from "../../api_types/commands";
 
 import { ChatInputCommand } from "./command";
 
@@ -12,10 +12,10 @@ export class ChatInputCommandManager {
 
   registered = false;
 
-  #rest: REST;
+  // #rest: REST;
 
-  constructor(private clientId: Snowflake, token: string) {
-    this.#rest = new REST({ version: "9" }).setToken(token);
+  constructor(/* private clientId: Snowflake, token: string */) {
+   // this.#rest = new REST({ version: "9" }).setToken(token);
   }
 
   addCommand(command: ChatInputCommand): this;
@@ -30,30 +30,31 @@ export class ChatInputCommandManager {
     return this;
   }
 
-  updateCommand(command: ChatInputCommand): this;
-  updateCommand(name: string, fn: CommandBuilderFn): this;
-  updateCommand(
-    commandOrName: string | ChatInputCommand,
-    fn?: (command: ChatInputCommand) => ChatInputCommand
-  ) {
-    let command: ChatInputCommand;
-    if (commandOrName instanceof ChatInputCommand) {
-      command = commandOrName;
-    } else {
-      const possibleCommand = this.findCommand(commandOrName);
-      if (typeof possibleCommand === "undefined") {
-        throw new Error("Command not found");
-      }
+  // updateCommand(command: ChatInputCommand): this;
+  // updateCommand(name: string, fn: CommandBuilderFn): this;
+  // updateCommand(
+  //   commandOrName: string | ChatInputCommand,
+  //   fn?: (command: ChatInputCommand) => ChatInputCommand
+  // ) {
+  //   let command: ChatInputCommand;
+  //   if (commandOrName instanceof ChatInputCommand) {
+  //     command = commandOrName;
+  //   } else {
+  //     const possibleCommand = this.findCommand(commandOrName);
+  //     if (typeof possibleCommand === "undefined") {
+  //       throw new Error("Command not found");
+  //     }
 
-      command = fn!(possibleCommand);
-    }
+  //     // @ts-ignore
+  //     command = fn!(possibleCommand);
+  //   }
 
-    if (this.registered) {
-      // TODO: Use the update method.
-    }
+  //   if (this.registered) {
+  //     // TODO: Use the update method.
+  //   }
 
-    return this;
-  }
+  //   return this;
+  // }
 
   removeCommand(nameOrCommand: string | ChatInputCommand) {
     let command!: ChatInputCommand;
@@ -99,31 +100,31 @@ export class ChatInputCommandManager {
   //   }
   // }
 
-  #overwriteGlobalCommands(commands: Commands.ChatInput.Outgoing.Command[]) {
-    return this.#overwriteCommands(this.#routeURI(), commands);
-  }
+  // #overwriteGlobalCommands(commands: Commands.ChatInput.Outgoing.Command[]) {
+  //   return this.#overwriteCommands(this.#routeURI(), commands);
+  // }
 
-  #overwriteGuildCommands(
-    guildID: Snowflake,
-    commands: Commands.ChatInput.Outgoing.Command[]
-  ) {
-    return this.#overwriteCommands(this.#routeURI(guildID), commands);
-  }
+  // #overwriteGuildCommands(
+  //   guildID: Snowflake,
+  //   commands: Commands.ChatInput.Outgoing.Command[]
+  // ) {
+  //   return this.#overwriteCommands(this.#routeURI(guildID), commands);
+  // }
 
-  #routeURI(guildID?: Snowflake) {
-    if (typeof guildID !== "undefined") {
-      return Routes.applicationGuildCommands(this.clientId, guildID);
-    } else {
-      return Routes.applicationCommands(this.clientId);
-    }
-  }
+  // #routeURI(guildID?: Snowflake) {
+  //   if (typeof guildID !== "undefined") {
+  //     return Routes.applicationGuildCommands(this.clientId, guildID);
+  //   } else {
+  //     return Routes.applicationCommands(this.clientId);
+  //   }
+  // }
 
-  async #overwriteCommands(
-    route: `/${string}`,
-    commands: Commands.Outgoing.ApplicationCommand[]
-  ) {
-    await this.#rest.put(route, { body: commands });
-  }
+  // async #overwriteCommands(
+  //   route: `/${string}`,
+  //   commands: Commands.Outgoing.ApplicationCommand[]
+  // ) {
+  //   await this.#rest.put(route, { body: commands });
+  // }
 
   // private static searchForSubcommand(
   //   interaction: APIChatInputApplicationCommandInteractionData,

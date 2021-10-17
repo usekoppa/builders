@@ -6,19 +6,19 @@ import { Executable } from "../../../executable.mixin";
 import { Option } from "./option.mixin";
 import { OptionsBuilder } from "./options_builder.mixin";
 
-@mix(OptionsBuilder, Executable)
+@mix(Executable, OptionsBuilder)
 export class Subcommand<
-  Name extends string = string,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Arguments = {}
-> extends Option<Options.Type.Subcommand, Name, false> {
+> extends Option<Options.Type.Subcommand, string, false> {
+  readonly options: Option<Options.DataType>[] = [];
+
   constructor() {
     super(Options.Type.Subcommand);
   }
 
-  resolve(option: Options.Incoming.Subcommand) {
-    if (typeof this.executor === "undefined") return;
-    return this.getArguments(option.options);
+  resolve(_option: Options.Incoming.Subcommand) {
+    // return this.getArguments(option.options);
   }
 
   toJSON() {
@@ -31,7 +31,7 @@ export class Subcommand<
   }
 }
 
-export interface Subcommand<Name extends string = string, Arguments = {}>
-  extends Option<Options.Type.Subcommand, Name, false>,
-    OptionsBuilder<Subcommand<Name>, Arguments>,
+export interface Subcommand<Arguments = {}>
+  extends Option<Options.Type.Subcommand, string, false>,
+    OptionsBuilder<Arguments>,
     Executable<Arguments> {}

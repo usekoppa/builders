@@ -1,39 +1,21 @@
 import {
   APIApplicationCommandOptionChoice,
-  APIChannel,
   APIChatInputApplicationCommandInteractionDataResolved,
-  APIRole,
-  APIUser,
 } from "discord-api-types";
 
 import { Options } from "../../../api_types/options";
 import { NameAndDescription } from "../name_and_description.mixin";
 
-import { Subcommand } from "./subcommand";
+import { OptionArgumentValues } from "./option_argument_values";
 
-export interface OptionArgumentValues {
-  [Options.Type.Subcommand]: unknown; // The arguments.
-  [Options.Type.SubcommandGroup]: {
-    subcommand: Subcommand;
-    options: Options.Incoming.Subcommand;
-  };
-
-  [Options.Type.String]: string;
-  [Options.Type.Integer]: number;
-  [Options.Type.Boolean]: boolean;
-  [Options.Type.User]: APIUser;
-  [Options.Type.Channel]: APIChannel;
-  [Options.Type.Role]: APIRole;
-  [Options.Type.Mentionable]: APIUser | APIChannel | APIRole;
-  [Options.Type.Number]: number;
-}
+export const kResolve = Symbol("option.resolve");
 
 export abstract class Option<
   Type extends Options.Type = Options.Type,
   Name extends string = string,
-  IsRequired extends boolean = true,
+  IsRequired extends boolean = boolean,
   Value extends OptionArgumentValues[Type] = OptionArgumentValues[Type],
-  ChoiceAdded extends boolean = false
+  ChoiceAdded extends boolean = boolean
 > extends NameAndDescription {
   protected readonly required = true as IsRequired;
   protected readonly choices?: APIApplicationCommandOptionChoice[];
@@ -77,7 +59,7 @@ export abstract class Option<
     >;
   }
 
-  protected addChoice<
+  protected _addChoice<
     NewValue extends OptionArgumentValues[Type] & (string | number)
   >(name: string, value: NewValue) {
     if (typeof this.choices === "undefined") Reflect.set(this, "choices", []);
@@ -92,12 +74,20 @@ export abstract class Option<
     >;
   }
 
-  abstract resolve(
+  protected abstract resolve(
     option: Options.Incoming.Option,
     resolved: APIChatInputApplicationCommandInteractionDataResolved
   ): Value | undefined;
 
   abstract toJSON(): Options.Outgoing.Option;
+
+  static resolve(
+    option: Option,
+    raw: Options.Incoming.Option,
+    resolved: APIChatInputApplicationCommandInteractionDataResolved
+  ) {
+    return option.resolve(raw, resolved);
+  }
 
   protected static verifyChoiceAmount(amount: number) {
     if (amount > 25) {

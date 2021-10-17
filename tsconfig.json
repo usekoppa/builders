@@ -34,6 +34,6 @@
     "skipLibCheck": true,
     "outDir": "./dist",
   },
-  "include": ["src/**/*", "old_options_system"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules"]
 }

@@ -1,6 +1,7 @@
 import { Options } from "../../../api_types/options";
 
-import { Option, OptionArgumentValues } from "./option.mixin";
+import { Option } from "./option.mixin";
+import { OptionArgumentValues } from "./option_argument_values";
 
 type NewOptionWithChoices<
   Type extends Options.ChoiceType,
@@ -8,8 +9,8 @@ type NewOptionWithChoices<
   IsRequired extends boolean,
   Value extends OptionArgumentValues[Type],
   ChoiceAdded extends boolean
-> = Option<Type, Name, IsRequired, Value, ChoiceAdded> &
-  OptionWithChoices<Type, Name, IsRequired, Value, ChoiceAdded>;
+> = OptionWithChoices<Type, Name, IsRequired, Value, ChoiceAdded> &
+  Option<Type, Name, IsRequired, Value, ChoiceAdded>;
 
 export class OptionWithChoices<
   Type extends Options.ChoiceType = Options.ChoiceType,
@@ -19,6 +20,11 @@ export class OptionWithChoices<
   ChoiceAdded extends boolean = false
 > extends Option<Type, Name, IsRequired, Value, ChoiceAdded> {
   readonly choices = super.choices;
+  readonly required = super.required;
+
+  constructor(public readonly type: Type) {
+    super(type);
+  }
 
   setName<NewName extends string>(name: NewName) {
     super.setName(name);
@@ -57,7 +63,7 @@ export class OptionWithChoices<
     name: string,
     value: NewValue
   ) {
-    super.addChoice(name, value);
+    super._addChoice(name, value);
     return this as unknown as NewOptionWithChoices<
       Type,
       Name,
@@ -68,11 +74,9 @@ export class OptionWithChoices<
   }
 
   resolve(option: Options.Incoming.ChoiceDataOption) {
-    if (option.name === this.name) {
-      return this.choices?.find(opt => opt.value === option.value)?.value as
-        | Value
-        | undefined;
-    }
+    return this.choices?.find(opt => opt.value === option.value)?.value as
+      | Value
+      | undefined;
   }
 
   toJSON() {

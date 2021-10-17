@@ -3,14 +3,15 @@ import { mix } from "ts-mixer";
 
 import { ApplicationCommand } from "../application_command.mixin";
 
-import { OptionsBuilder } from "./options/options_builder.mixin";
+import { Option } from "./options/option.mixin";
 import { Description } from "./description.mixin";
 import { SubcommandBuilder } from "./sub_commands_builder.mixin";
 
-@mix(SubcommandBuilder, Description, OptionsBuilder)
+@mix(SubcommandBuilder, Description)
 export class ChatInputCommand<
   Arguments = {}
 > extends ApplicationCommand<Arguments> {
+  readonly options: Option[] = [];
   readonly defaultPermission: boolean = true;
 
   constructor() {
@@ -40,5 +41,4 @@ export class ChatInputCommand<
 export interface ChatInputCommand<Arguments = {}>
   extends SubcommandBuilder,
     ApplicationCommand<Arguments>,
-    Description,
-    OptionsBuilder<Arguments> {}
+    Description {}
