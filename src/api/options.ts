@@ -7,7 +7,7 @@ import {
 } from "discord-api-types";
 
 export namespace Options {
-  export enum Type {
+  export const enum Type {
     Subcommand = 1,
     SubcommandGroup = 2,
     String = 3,

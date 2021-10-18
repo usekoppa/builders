@@ -10,6 +10,12 @@ import { Interactions } from "./interactions";
 import { Options } from "./options";
 
 export namespace Commands {
+  export enum Type {
+    ChatInput = 1,
+    UserContextMenu = 2,
+    MessageContextMenu = 3,
+  }
+
   export namespace Outgoing {
     export type ApplicationCommand =
       | ChatInput.Outgoing.Command
@@ -34,22 +40,32 @@ export namespace Commands {
 
       export type Command = Omit<
         APIChatInputApplicationCommandInteractionData,
-        "options"
-      > & { options?: Options.Incoming.Option[] };
+        "options" | "type"
+      > & {
+        type?: Commands.Type.ChatInput;
+        options?: Options.Incoming.Option[];
+      };
     }
 
     export namespace Outgoing {
       export type Command = Omit<
         RESTPostAPIApplicationCommandsJSONBody,
-        "options"
-      > & { options?: Options.Outgoing.Option[] };
+        "options" | "type"
+      > & {
+        type?: Commands.Type.ChatInput;
+        options?: Options.Outgoing.Option[];
+      };
     }
   }
 
   export namespace ContextMenu {
     export namespace Outgoing {
-      export type ContextMenu =
-        RESTPostAPIContextMenuApplicationCommandsJSONBody;
+      export type ContextMenu = Omit<
+        RESTPostAPIContextMenuApplicationCommandsJSONBody,
+        "type"
+      > & {
+        type: Commands.Type.MessageContextMenu | Commands.Type.UserContextMenu;
+      };
     }
   }
 }

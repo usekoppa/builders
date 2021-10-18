@@ -1,7 +1,6 @@
 import { APIChannel, APIRole, APIUser } from "discord-api-types";
 
-import { Options } from "../api/options";
-
+import { Options } from "./api/options";
 import { Subcommand } from "./subcommand";
 
 export interface ResolvedOptions {
