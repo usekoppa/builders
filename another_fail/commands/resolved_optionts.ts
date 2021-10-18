@@ -1,10 +1,10 @@
 import { APIChannel, APIRole, APIUser } from "discord-api-types";
 
-import { Options } from "../../../api_types/options";
+import { Options } from "../api/options";
 
 import { Subcommand } from "./subcommand";
 
-export interface OptionArgumentValues {
+export interface ResolvedOptions {
   [Options.Type.Subcommand]: unknown; // The arguments.
   [Options.Type.SubcommandGroup]: {
     subcommand: Subcommand;

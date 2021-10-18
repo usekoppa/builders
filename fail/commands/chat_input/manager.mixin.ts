@@ -15,7 +15,7 @@ export class ChatInputCommandManager {
   // #rest: REST;
 
   constructor(/* private clientId: Snowflake, token: string */) {
-   // this.#rest = new REST({ version: "9" }).setToken(token);
+    // this.#rest = new REST({ version: "9" }).setToken(token);
   }
 
   addCommand(command: ChatInputCommand): this;

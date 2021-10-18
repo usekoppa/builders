@@ -3,7 +3,7 @@
   "include": [
     ".eslintrc.js",
     ".prettierrc.js",
-    "src/**/*",
+    "src2/**/*",
     "tsconfig.json"
   ]
 }
