@@ -16,6 +16,10 @@ export namespace Commands {
     MessageContextMenu = 3,
   }
 
+  export type ContextMenuType =
+    | Commands.Type.UserContextMenu
+    | Commands.Type.MessageContextMenu;
+
   export namespace Outgoing {
     export type ApplicationCommand =
       | ChatInput.Outgoing.Command
