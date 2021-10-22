@@ -1,22 +1,22 @@
 import { APIChannel, APIRole, APIUser } from "discord-api-types";
 
-import { Options } from "../api/options";
+import { Commands } from "../api/commands";
 
 import { Subcommand } from "./subcommand";
 
 export interface ResolvedOptions {
-  [Options.Type.Subcommand]: unknown; // The arguments.
-  [Options.Type.SubcommandGroup]: {
+  [Commands.ChatInput.Options.Type.Subcommand]: unknown; // The arguments.
+  [Commands.ChatInput.Options.Type.SubcommandGroup]: {
     subcommand: Subcommand;
-    options: Options.Incoming.Subcommand;
+    options: Commands.ChatInput.Options.Incoming.Subcommand;
   };
 
-  [Options.Type.String]: string;
-  [Options.Type.Integer]: number;
-  [Options.Type.Boolean]: boolean;
-  [Options.Type.User]: APIUser;
-  [Options.Type.Channel]: APIChannel;
-  [Options.Type.Role]: APIRole;
-  [Options.Type.Mentionable]: APIUser | APIChannel | APIRole;
-  [Options.Type.Number]: number;
+  [Commands.ChatInput.Options.Type.String]: string;
+  [Commands.ChatInput.Options.Type.Integer]: number;
+  [Commands.ChatInput.Options.Type.Boolean]: boolean;
+  [Commands.ChatInput.Options.Type.User]: APIUser;
+  [Commands.ChatInput.Options.Type.Channel]: APIChannel;
+  [Commands.ChatInput.Options.Type.Role]: APIRole;
+  [Commands.ChatInput.Options.Type.Mentionable]: APIUser | APIChannel | APIRole;
+  [Commands.ChatInput.Options.Type.Number]: number;
 }

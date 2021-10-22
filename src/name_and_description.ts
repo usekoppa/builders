@@ -1,9 +1,4 @@
-import {
-  validateMaxStringLength,
-  validateStringHasNoSymbols,
-  validateStringIsLowercase,
-  validateValueIsString,
-} from "./commands/string_validator";
+import { StringValidator } from "./string_validator";
 
 export interface NameAndDescription {
   readonly name: string;
@@ -13,22 +8,19 @@ export interface NameAndDescription {
   setDescription(description: string): unknown;
 }
 
-export function validateName(name: unknown) {
-  const noun = "command/options/menu name";
-
-  validateValueIsString(noun, name);
-
-  validateMaxStringLength(noun, 32, name);
-
-  validateStringHasNoSymbols(noun, name);
-
-  validateStringIsLowercase(noun, name);
+export function validateName(noun = "command/options/menu", name: unknown) {
+  noun = `${noun} name`;
+  const validator = new StringValidator(noun, name);
+  validator.meetsLength(32);
+  validator.hasNoSymbols();
+  validator.isLowercase();
 }
 
-export function validateDescription(description: unknown) {
-  const noun = "command/option description";
-
-  validateValueIsString(noun, description);
-
-  validateMaxStringLength(noun, 100, description);
+export function validateDescription(
+  noun = "command/option",
+  description: unknown
+) {
+  noun = `${noun} description`;
+  const validator = new StringValidator(noun, description);
+  validator.meetsLength(100);
 }

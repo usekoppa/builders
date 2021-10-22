@@ -1,34 +1,26 @@
 import { ChannelType } from "discord-api-types";
 
-import { Options } from "../api/options";
-import { validateDescription, validateName } from "../name_and_description";
+import { Commands } from "../api/commands";
 
 import { Option } from "./option";
 
 export class ChannelOption<
   Name extends string = string,
   IsRequired extends boolean = boolean
-> extends Option<Options.Type.Channel, Name, IsRequired> {
+> extends Option<Commands.ChatInput.Options.Type.Channel, Name, IsRequired> {
   readonly channelTypes?: ChannelType[];
 
   constructor() {
-    super(Options.Type.Channel);
+    super(Commands.ChatInput.Options.Type.Channel);
   }
 
   setName<NewName extends string>(name: NewName) {
-    validateName(name);
-    Reflect.set(this, "name", name);
+    super.setName(name);
     return this as unknown as ChannelOption<NewName, IsRequired>;
   }
 
-  setDescription(description: string) {
-    validateDescription(description);
-    Reflect.set(this, "description", description);
-    return this;
-  }
-
   setRequired<NewIsRequired extends boolean>(required: NewIsRequired) {
-    Reflect.set(this, "required", required);
+    super.setRequired(required);
     return this as unknown as ChannelOption<Name, NewIsRequired>;
   }
 
@@ -47,7 +39,7 @@ export class ChannelOption<
   }
 
   toJSON() {
-    const data = super.toJSON() as Options.Outgoing.Channel;
+    const data = super.toJSON() as Commands.ChatInput.Options.Outgoing.Channel;
     if (typeof this.channelTypes !== "undefined") {
       data.channel_types = this.channelTypes;
     }

@@ -1,26 +1,24 @@
 import { APIApplicationCommandOptionChoice } from "discord-api-types";
 
-import { Options } from "../api/options";
+import { Commands } from "../api/commands";
 import { JSONifiable } from "../JSONifiable";
-import { validateDescription, validateName } from "../name_and_description";
 
 import { Option } from "./option";
 import { ResolvedOptions } from "./resolved_options";
 
 export class OptionWithChoices<
-    Type extends Options.ChoiceType = Options.ChoiceType,
+    Type extends Commands.ChatInput.Options.ChoiceType = Commands.ChatInput.Options.ChoiceType,
     Name extends string = string,
     IsRequired extends boolean = boolean,
     Value extends ResolvedOptions[Type] = never
   >
   extends Option<Type, Name, IsRequired>
-  implements JSONifiable<Options.Outgoing.Choice>
+  implements JSONifiable<Commands.ChatInput.Options.Outgoing.Choice>
 {
   readonly choices?: APIApplicationCommandOptionChoice[];
 
   setName<NewName extends string>(name: NewName) {
-    validateName(name);
-    Reflect.set(this, "name", name);
+    super.setName(name);
     return this as unknown as OptionWithChoices<
       Type,
       NewName,
@@ -29,14 +27,8 @@ export class OptionWithChoices<
     >;
   }
 
-  setDescription(description: string) {
-    validateDescription(description);
-    Reflect.set(this, "description", description);
-    return this;
-  }
-
   setRequired<NewIsRequired extends boolean>(required: NewIsRequired) {
-    Reflect.set(this, "required", required);
+    super.setRequired(required);
     return this as unknown as OptionWithChoices<
       Type,
       Name,
@@ -57,7 +49,7 @@ export class OptionWithChoices<
   }
 
   toJSON() {
-    const data = super.toJSON() as Options.Outgoing.Choice;
+    const data = super.toJSON() as Commands.ChatInput.Options.Outgoing.Choice;
     if (typeof this.choices !== "undefined") data.choices = this.choices;
     return data;
   }

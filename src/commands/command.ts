@@ -1,5 +1,4 @@
 import { Commands } from "../api/commands";
-import { Options } from "../api/options";
 import { JSONifiable } from "../JSONifiable";
 import {
   NameAndDescription,
@@ -45,7 +44,7 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
     NameAndDescription,
     JSONifiable<
       IsSubcommand extends true
-        ? Options.Outgoing.Subcommand
+        ? Commands.ChatInput.Options.Outgoing.Subcommand
         : Commands.ChatInput.Outgoing.Command
     >
 {
@@ -61,49 +60,91 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
   ) {}
 
   setName(name: string) {
-    validateName(name);
+    validateName("command", name);
     Reflect.set(this, "name", name);
     return this;
   }
 
   setDescription(description: string) {
-    validateDescription(description);
+    validateDescription("command", description);
     Reflect.set(this, "description", description);
     return this;
   }
 
-  addBooleanOption(input: BuilderInput<Option<Options.Type.Boolean>>) {
-    return this.#addOption(Option, Options.Type.Boolean, input);
+  addBooleanOption(
+    input: BuilderInput<Option<Commands.ChatInput.Options.Type.Boolean>>
+  ) {
+    return this.#addOption(
+      Option,
+      Commands.ChatInput.Options.Type.Boolean,
+      input
+    );
   }
 
   addIntegerOption(
-    input: BuilderInput<OptionWithChoices<Options.Type.Integer>>
+    input: BuilderInput<
+      OptionWithChoices<Commands.ChatInput.Options.Type.Integer>
+    >
   ) {
-    return this.#addOption(OptionWithChoices, Options.Type.Integer, input);
+    return this.#addOption(
+      OptionWithChoices,
+      Commands.ChatInput.Options.Type.Integer,
+      input
+    );
   }
 
-  addMentionableOption(input: BuilderInput<Option<Options.Type.Mentionable>>) {
-    return this.#addOption(Option, Options.Type.Mentionable, input);
+  addMentionableOption(
+    input: BuilderInput<Option<Commands.ChatInput.Options.Type.Mentionable>>
+  ) {
+    return this.#addOption(
+      Option,
+      Commands.ChatInput.Options.Type.Mentionable,
+      input
+    );
   }
 
-  addNumberOption(input: BuilderInput<OptionWithChoices<Options.Type.Number>>) {
-    return this.#addOption(OptionWithChoices, Options.Type.Number, input);
+  addNumberOption(
+    input: BuilderInput<
+      OptionWithChoices<Commands.ChatInput.Options.Type.Number>
+    >
+  ) {
+    return this.#addOption(
+      OptionWithChoices,
+      Commands.ChatInput.Options.Type.Number,
+      input
+    );
   }
 
-  addRoleOption(input: BuilderInput<Option<Options.Type.Role>>) {
-    return this.#addOption(Option, Options.Type.Role, input);
+  addRoleOption(
+    input: BuilderInput<Option<Commands.ChatInput.Options.Type.Role>>
+  ) {
+    return this.#addOption(Option, Commands.ChatInput.Options.Type.Role, input);
   }
 
-  addStringOption(input: BuilderInput<OptionWithChoices<Options.Type.String>>) {
-    return this.#addOption(OptionWithChoices, Options.Type.String, input);
+  addStringOption(
+    input: BuilderInput<
+      OptionWithChoices<Commands.ChatInput.Options.Type.String>
+    >
+  ) {
+    return this.#addOption(
+      OptionWithChoices,
+      Commands.ChatInput.Options.Type.String,
+      input
+    );
   }
 
-  addUserOption(input: BuilderInput<Option<Options.Type.User>>) {
-    return this.#addOption(Option, Options.Type.User, input);
+  addUserOption(
+    input: BuilderInput<Option<Commands.ChatInput.Options.Type.User>>
+  ) {
+    return this.#addOption(Option, Commands.ChatInput.Options.Type.User, input);
   }
 
   addChannelOption(input: BuilderInput<ChannelOption>) {
-    return this.#addOption(ChannelOption, Options.Type.Channel, input);
+    return this.#addOption(
+      ChannelOption,
+      Commands.ChatInput.Options.Type.Channel,
+      input
+    );
   }
 
   addSubcommandGroup(input: BuilderInput<SubcommandGroup>) {
@@ -111,7 +152,11 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
       throw new Error("You can not add a subcommand group to a subcommand");
     }
 
-    this.#addOption(SubcommandGroup, Options.Type.SubcommandGroup, input);
+    this.#addOption(
+      SubcommandGroup,
+      Commands.ChatInput.Options.Type.SubcommandGroup,
+      input
+    );
     this.#hasSubcommandChildren = true;
     return this as unknown as SubcommandGroupParent;
   }
@@ -125,9 +170,12 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
   }
 
   toJSON() {
+    validateName("command", this.name);
+    validateDescription("command", this.description);
+
     const data: Record<string, unknown> = {
       type: this.isSubcommand
-        ? Options.Type.Subcommand
+        ? Commands.ChatInput.Options.Type.Subcommand
         : Commands.Type.ChatInput,
       name: this.name,
       description: this.description,
@@ -142,19 +190,24 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
     }
 
     return data as unknown as IsSubcommand extends true
-      ? Options.Outgoing.Subcommand
+      ? Commands.ChatInput.Options.Outgoing.Subcommand
       : Commands.ChatInput.Outgoing.Command;
   }
 
   #addOption<
-    Type extends Options.DataType | Options.Type.SubcommandGroup,
+    Type extends
+      | Commands.ChatInput.Options.DataType
+      | Commands.ChatInput.Options.Type.SubcommandGroup,
     InputOption extends Option<Type>
   >(
     NewOption: { new (type: Type): InputOption & unknown },
     type: Type,
     input: BuilderInput<InputOption & unknown>
   ) {
-    if (this.#hasSubcommandChildren && type !== Options.Type.SubcommandGroup) {
+    if (
+      this.#hasSubcommandChildren &&
+      type !== Commands.ChatInput.Options.Type.SubcommandGroup
+    ) {
       throw new Error(
         "Commands cannot have regular options if they have subcommands or subcommand groups"
       );
