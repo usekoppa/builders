@@ -2,10 +2,23 @@
 
 An extremely powerful interactions framework for Discord.js.
 
-## Examples
+# Table of Contents
+
+* [Discord Interactions and Commands Framework (WIP)](#discord-interactions-and-commands-framework-wip)
+   * [Quick guide](#quick-guide)
+      * [Creating the client](#creating-the-client)
+      * [Adding a command](#adding-a-command)
+      * [Syncing the commands](#syncing-the-commands)
+      * [Responding to interactions](#responding-to-interactions)
+      * [Using the included API types](#using-the-included-api-types)
+   * [Inspirations](#inspirations)
+
+## Quick guide
+
+### Creating the client
 
 ```ts
-import { Client, Command,  API } from "@koppa/framework";
+import { Client} from "@koppa/framework";
 import { createServer } from "node:http";
 
 const clientId = "¯\_(ツ)_/¯";
@@ -14,7 +27,12 @@ const clientSecret = "¯\_(ツ)_/¯";
 const port = 3000;
 
 const client = new Client(clientId, clientSecret, { disallowedMentions: [] });
+```
 
+### Adding a command
+
+```ts
+import { Command } from "@koppa/framework";
 
 client.addCommand(cmd =>
   cmd
@@ -86,8 +104,14 @@ const command = new Command()
   .setName("something")
   .setDescription("something else");
 
-
 client.addCommand(command);
+
+```
+
+### Syncing the commands
+
+```ts
+
 
 // Syncs (edits, removes, creates) application commands.
 //
@@ -96,6 +120,12 @@ client.addCommand(command);
 // More options will be added soon to have more fine tuned control over which aspects
 // of syncing can be deferred as a "background" task.
 client.sync();
+```
+
+### Responding to interactions
+
+```ts
+import { createServer } from "node:http";
 
 // There are two ways to use the framework.
 
@@ -108,7 +138,11 @@ client.sync().then(() => server.listen(port))
 // or by just passing an interaction object:
 declare const interaction: API.Interactions.Incoming.Interaction;
 client.handleInteraction(interaction);
+```
 
+### Using the included API types
+
+```ts
 // The API module included with the framework provides easier to use typings than discord-api-types,
 // however, it does use some of its typings under the hood (although, they're generally modified to be way easier to use!)
 // Examples are:
@@ -124,5 +158,5 @@ declare const optionWithChoices = API.Commands.ChatInput.Options.Outgoing.Choice
 
 
 ## Inspirations
-
+ - [Discord API Types](https://github.com/discordjs/discord-api-types)
  - [Discord.js builders](https://github.com/discordjs/builders)
