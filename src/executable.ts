@@ -21,3 +21,14 @@ export interface Executable<Context extends unknown = unknown> {
 
   setExecutor(executor: Executor<Context>): this;
 }
+
+export async function execute(
+  executable: Executable,
+  interaction: Interactions.Incoming.Interaction
+) {
+  if (typeof executable[kExecute] !== "undefined") {
+    const ctx = await executable[kCreateContext](interaction);
+    if (typeof ctx === "undefined") return;
+    await executable[kExecute]?.(ctx);
+  }
+}

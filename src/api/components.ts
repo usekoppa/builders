@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
 import {
-  APIMessageComponent,
   APIMessageComponentEmoji,
   APISelectMenuOption,
 } from "discord-api-types";
@@ -13,8 +12,10 @@ export namespace Components {
     SelectMenu = 3,
   }
 
-  export type Component = Omit<APIMessageComponent, "type"> & { type: Type };
-  export type DataComponent = Exclude<Component, ActionRow>;
+  export type DataType = Type.Button | Type.SelectMenu;
+
+  export type Component = ActionRow | DataComponent;
+  export type DataComponent = Buttons.Button | SelectMenu.SelectMenu;
 
   export interface Base<Type extends Components.Type> {
     type: Type;
@@ -60,13 +61,16 @@ export namespace Components {
     }
   }
 
-  export interface SelectMenu
-    extends Components.Base<Components.Type.SelectMenu> {
-    custom_id: string;
-    options: APISelectMenuOption[];
-    placeholder?: string;
-    min_values?: number;
-    max_values?: number;
-    disabled?: boolean;
+  export namespace SelectMenu {
+    export type Option = APISelectMenuOption;
+    export interface SelectMenu
+      extends Components.Base<Components.Type.SelectMenu> {
+      custom_id: string;
+      options: SelectMenu.Option[];
+      placeholder?: string;
+      min_values?: number;
+      max_values?: number;
+      disabled?: boolean;
+    }
   }
 }

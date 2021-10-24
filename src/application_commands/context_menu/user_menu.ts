@@ -1,4 +1,4 @@
-import { Commands } from "../api/commands";
+import { Commands } from "../../api/commands";
 
 import { BaseMenu } from "./base_menu";
 

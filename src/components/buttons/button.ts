@@ -1,8 +1,9 @@
 import { APIMessageComponentEmoji } from "discord-api-types";
 
-import { Components } from "../api/components";
-import { JSONifiable } from "../JSONifiable";
-import { StringValidator } from "../string_validator";
+import { Components } from "../../api/components";
+import { JSONifiable } from "../../JSONifiable";
+import { DataComponent, validateCustomId } from "../data_component";
+import { validateLabel } from "../validate_label";
 
 import { LinkButton } from "./link_button";
 
@@ -11,15 +12,19 @@ export type NormalButton<
 > = Omit<Button<Style>, "setUrl" | "url">;
 
 export class Button<
-  Style extends Components.Buttons.Style = Components.Buttons.Style.Primary
-> implements JSONifiable<Components.Buttons.Button & { style: Style }>
+    Style extends Components.Buttons.Style = Components.Buttons.Style.Primary
+  >
+  extends DataComponent<Components.Type.Button>
+  implements JSONifiable<Components.Buttons.Button & { style: Style }>
 {
   readonly label?: string;
   readonly emoji?: APIMessageComponentEmoji;
   readonly style = Components.Buttons.Style.Primary as Style;
-  readonly disabled?: boolean;
-  readonly customId?: string;
   readonly url?: string;
+
+  constructor() {
+    super(Components.Type.Button);
+  }
 
   setLabel(label: string) {
     validateLabel(label);
@@ -41,16 +46,10 @@ export class Button<
       : never;
   }
 
-  setDisabled(disabled: boolean) {
-    Reflect.set(this, "disabled", disabled);
-    return this;
-  }
-
   setCustomId(customId: string) {
-    validateCustomId(customId);
-    Reflect.set(this, "customId", customId);
+    super.setCustomId(customId);
     if (this.style === Components.Buttons.Style.Link) {
-      return this.setStyle(Components.Buttons.Style.Primary);
+      this.setStyle(Components.Buttons.Style.Primary);
     }
 
     return this;
@@ -93,16 +92,4 @@ export class Button<
 
     return data as unknown as Components.Buttons.Button & { style: Style };
   }
-}
-
-function validateCustomId(customId: unknown): asserts customId is string {
-  const validator = new StringValidator("customId", customId);
-  validator.meetsLength(100);
-  validator.hasNoSymbols();
-  validator.isLowercase();
-}
-
-function validateLabel(label: unknown): asserts label is string {
-  const validator = new StringValidator("label", label);
-  validator.meetsLength(80);
 }

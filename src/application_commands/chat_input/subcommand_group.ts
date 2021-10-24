@@ -1,4 +1,4 @@
-import { Commands } from "../api/commands";
+import { Commands } from "../../api/commands";
 
 import { Command } from "./command";
 import { Option } from "./option";

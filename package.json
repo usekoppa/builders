@@ -10,11 +10,12 @@
   "author": "zorbyte",
   "license": "MIT",
   "dependencies": {
+    "@discordjs/builders": "^0.7.0",
     "@discordjs/rest": "^0.1.0-canary.0",
-    "discord-api-types": "github:discordjs/discord-api-types#main",
-    "ts-mixer": "^6.0.0",
+    "discord-api-types": "^0.24.0",
     "tslib": "^2.3.1"
   },
+  "temp": "github:discordjs/discord-api-types#main",
   "devDependencies": {
     "@types/node": "^16.10.2",
     "@typescript-eslint/eslint-plugin": "^4.32.0",

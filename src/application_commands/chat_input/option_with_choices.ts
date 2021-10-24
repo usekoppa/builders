@@ -1,7 +1,7 @@
 import { APIApplicationCommandOptionChoice } from "discord-api-types";
 
-import { Commands } from "../api/commands";
-import { JSONifiable } from "../JSONifiable";
+import { Commands } from "../../api/commands";
+import { JSONifiable } from "../../JSONifiable";
 
 import { Option } from "./option";
 import { ResolvedOptions } from "./resolved_options";

@@ -1,6 +1,6 @@
 import { ChannelType } from "discord-api-types";
 
-import { Commands } from "../api/commands";
+import { Commands } from "../../api/commands";
 
 import { Option } from "./option";
 

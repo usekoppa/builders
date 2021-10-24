@@ -1,10 +1,10 @@
-import { Commands } from "../api/commands";
-import { JSONifiable } from "../JSONifiable";
+import { Commands } from "../../api/commands";
+import { JSONifiable } from "../../JSONifiable";
 import {
   NameAndDescription,
   validateDescription,
   validateName,
-} from "../name_and_description";
+} from "../../name_and_description";
 
 import { OptionWithChoices } from "./option_with_choices";
 import { ResolvedOptions } from "./resolved_options";

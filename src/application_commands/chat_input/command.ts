@@ -1,11 +1,16 @@
-import { Commands } from "../api/commands";
-import { Executable, Executor, kCreateContext, kExecute } from "../executable";
-import { JSONifiable } from "../JSONifiable";
+import { Commands } from "../../api/commands";
+import {
+  Executable,
+  Executor,
+  kCreateContext,
+  kExecute,
+} from "../../executable";
+import { JSONifiable } from "../../JSONifiable";
 import {
   NameAndDescription,
   validateDescription,
   validateName,
-} from "../name_and_description";
+} from "../../name_and_description";
 
 import { ChannelOption } from "./channel_option";
 import { Option, OptionArgument } from "./option";
@@ -73,13 +78,13 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
   ) {}
 
   setName(name: string) {
-    validateName("command", name);
+    validateName(name);
     Reflect.set(this, "name", name);
     return this;
   }
 
   setDescription(description: string) {
-    validateDescription("command", description);
+    validateDescription(description);
     Reflect.set(this, "description", description);
     return this;
   }
@@ -188,8 +193,8 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
   }
 
   toJSON() {
-    validateName("command", this.name);
-    validateDescription("command", this.description);
+    validateName(this.name);
+    validateDescription(this.description);
 
     const data: Record<string, unknown> = {
       type: this.isSubcommand
