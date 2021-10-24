@@ -17,7 +17,7 @@ export abstract class BaseMenu<Type extends Commands.ContextMenuType>
   }
 
   toJSON() {
-    if (typeof this.name === "undefined") throw new Error("No name was set");
+    validateName("menu", this.name);
     return {
       type: this.type,
       name: this.name,

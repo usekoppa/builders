@@ -22,27 +22,10 @@ export namespace Interactions {
   }
 
   export namespace Incoming {
-    export interface Message {
-      /**
-       * ID of the interaction
-       */
-      id: Snowflake;
-
-      /**
-       * The type of interaction
-       */
-      type: Interactions.Type;
-
-      /**
-       * The name of the ApplicationCommand
-       */
-      name: string;
-
-      /**
-       * The user who invoked the interaction
-       */
-      user: APIUser;
-    }
+    export type Interaction = Interactions.Incoming.Base<
+      Interactions.Type,
+      unknown
+    >;
 
     export interface Base<
       Type extends Interactions.Type,
@@ -104,6 +87,28 @@ export namespace Interactions {
        * For components, the message they were attached to
        */
       message?: APIMessage;
+    }
+
+    export interface Message {
+      /**
+       * ID of the interaction
+       */
+      id: Snowflake;
+
+      /**
+       * The type of interaction
+       */
+      type: Interactions.Type;
+
+      /**
+       * The name of the ApplicationCommand
+       */
+      name: string;
+
+      /**
+       * The user who invoked the interaction
+       */
+      user: APIUser;
     }
 
     export namespace DM {

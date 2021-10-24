@@ -1,6 +1,6 @@
 export { Command } from "./command";
 export { Subcommand } from "./subcommand";
-export { SubcommandGroup } from "./subcommand_builder";
+export { SubcommandGroup } from "./subcommand_group";
 
 export { Option } from "./option";
 export { ChannelOption } from "./channel_option";

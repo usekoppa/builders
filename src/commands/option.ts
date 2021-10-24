@@ -8,7 +8,7 @@ import {
 
 import { OptionWithChoices } from "./option_with_choices";
 import { ResolvedOptions } from "./resolved_options";
-import { SubcommandGroup } from "./subcommand_builder";
+import { SubcommandGroup } from "./subcommand_group";
 
 export type OptionArgument<InputOption> = InputOption extends SubcommandGroup
   ? never

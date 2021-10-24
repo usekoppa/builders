@@ -1,4 +1,5 @@
 import { Commands } from "../api/commands";
+import { Executable, Executor, kCreateContext, kExecute } from "../executable";
 import { JSONifiable } from "../JSONifiable";
 import {
   NameAndDescription,
@@ -14,7 +15,7 @@ import {
   getSubcommandFromInput,
   SubcommandBuilderInput,
   SubcommandGroup,
-} from "./subcommand_builder";
+} from "./subcommand_group";
 
 export type BuilderInput<InputOption extends Option = Option> =
   | InputOption
@@ -39,9 +40,15 @@ type BaseCommandParent = Omit<
 type SubcommandParent = Omit<BaseCommandParent, "addSubcommandGroup">;
 type SubcommandGroupParent = Omit<BaseCommandParent, "addSubcommand">;
 
+export interface CommandContext<Arguments = {}> {
+  cmd?: Command<Arguments> | Subcommand<Arguments>;
+  args: Arguments;
+}
+
 export class Command<Arguments = {}, IsSubcommand extends boolean = false>
   implements
     NameAndDescription,
+    Executable<CommandContext<Arguments>>,
     JSONifiable<
       IsSubcommand extends true
         ? Commands.ChatInput.Options.Outgoing.Subcommand
@@ -51,7 +58,13 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
   readonly name!: string;
   readonly description!: string;
   readonly defaultPermission?: boolean;
-  readonly options?: (Option | Subcommand)[];
+  readonly options?: Map<symbol, Option | Subcommand>;
+
+  readonly [kExecute]?: Executor<CommandContext<Arguments>>;
+
+  protected readonly type = this.isSubcommand
+    ? Commands.ChatInput.Options.Type.Subcommand
+    : void 0;
 
   #hasSubcommandChildren = false;
 
@@ -68,6 +81,11 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
   setDescription(description: string) {
     validateDescription("command", description);
     Reflect.set(this, "description", description);
+    return this;
+  }
+
+  setExecutor(executor: Executor<CommandContext<Arguments>>) {
+    Reflect.set(this, kExecute, executor);
     return this;
   }
 
@@ -157,14 +175,14 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
       Commands.ChatInput.Options.Type.SubcommandGroup,
       input
     );
+
     this.#hasSubcommandChildren = true;
     return this as unknown as SubcommandGroupParent;
   }
 
   addSubcommand(input: SubcommandBuilderInput) {
-    this.#addOptionsIfUndefined();
     const option = getSubcommandFromInput(input);
-    this.options!.push(option);
+    this.#setOption(option);
     this.#hasSubcommandChildren = true;
     return this as unknown as SubcommandParent;
   }
@@ -181,8 +199,8 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
       description: this.description,
     };
 
-    if (typeof this.options !== "undefined" && this.options.length !== 0) {
-      data.options = this.options;
+    if (typeof this.options !== "undefined" && this.options.size !== 0) {
+      data.options = [...this.options.values()];
     }
 
     if (!this.isSubcommand && typeof this.defaultPermission !== "undefined") {
@@ -192,6 +210,68 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
     return data as unknown as IsSubcommand extends true
       ? Commands.ChatInput.Options.Outgoing.Subcommand
       : Commands.ChatInput.Outgoing.Command;
+  }
+
+  [kCreateContext](interaction: Commands.ChatInput.Incoming.Interaction) {
+    if (typeof this.options === "undefined" || this.options.size === 0) {
+      return Object.freeze({ cmd: void 0, args: {} as Arguments });
+    }
+
+    /* Process subcommands and subcommand groups. */
+
+    let cmdData = interaction.data as
+      | Commands.ChatInput.Incoming.Command
+      | Commands.ChatInput.Options.Incoming.Subcommand;
+
+    let cmd = this.getOption(cmdData) as Command | Subcommand;
+
+    let optionsData =
+      cmdData.options as unknown as Commands.ChatInput.Options.Incoming.DataOption[];
+
+    const subcmdGroupData = optionsData?.[0] as unknown as
+      | Commands.ChatInput.Options.Incoming.SubcommandGroup
+      | undefined;
+
+    if (typeof subcmdGroupData !== "undefined") {
+      const group = this.getOption(subcmdGroupData) as SubcommandGroup;
+
+      if (typeof group !== "undefined") {
+        const subcmdData = subcmdGroupData.options[0];
+
+        // You can't have a subcommand group without a subcommand, this data is corrupt.
+        if (typeof subcmdData === "undefined") return;
+
+        const subcmd = group.options.get(Command.getOptionKey(subcmdData));
+        const subcmdOptionsData = subcmdData?.options;
+        if (typeof subcmdOptionsData !== "undefined") {
+          optionsData = subcmdOptionsData;
+          cmdData = subcmdData;
+          cmd = subcmd as Subcommand;
+        }
+      }
+    }
+
+    /* Gather arguments */
+
+    const args: Record<string, unknown> = {};
+    for (const optionData of optionsData) {
+      const option = (cmd as Command).getOption(optionData) as Option;
+      if (
+        typeof option.required === "undefined" &&
+        (typeof optionData.value !== "undefined" || optionData.value !== null)
+      ) {
+        return;
+      }
+
+      // I hate null, I prefer undefined any day.
+      args[option.name] = optionData.value ?? void 0;
+    }
+
+    return { cmd, args } as unknown as CommandContext<Arguments>;
+  }
+
+  protected getOption(option: { name: string; type: number }) {
+    return this.options?.get(Command.getOptionKey(option));
   }
 
   #addOption<
@@ -214,8 +294,7 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
     }
 
     const option = input instanceof Option ? input : input(new NewOption(type));
-    this.#addOptionsIfUndefined();
-    this.options![option.required ? "unshift" : "push"](option);
+    this.#setOption(option);
 
     return this as unknown as CommandReturnType<
       Arguments & OptionArgument<InputOption>,
@@ -223,9 +302,26 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
     >;
   }
 
+  #setOption(option: Option | Subcommand) {
+    this.#addOptionsIfUndefined();
+    this.options!.set(Command.getOptionKey(option), option);
+  }
+
   #addOptionsIfUndefined() {
     if (typeof this.options === "undefined") {
-      Reflect.set(this, "options", []);
+      Reflect.set(this, "options", new Map());
     }
+  }
+
+  static getOptionKey(
+    option: {
+      name: string;
+      type: number;
+    },
+    isCommand = false
+  ) {
+    return Symbol.for(
+      `name=${option.name},type=${isCommand ? "command" : option.type}`
+    );
   }
 }

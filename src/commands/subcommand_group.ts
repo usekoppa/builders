@@ -9,7 +9,7 @@ export type SubcommandBuilderInput =
   | ((subcommand: Subcommand) => Subcommand);
 
 export class SubcommandGroup extends Option<Commands.ChatInput.Options.Type.SubcommandGroup> {
-  readonly options: Subcommand[] = [];
+  readonly options = new Map<symbol, Subcommand>();
   readonly required: undefined;
 
   constructor() {
@@ -28,7 +28,7 @@ export class SubcommandGroup extends Option<Commands.ChatInput.Options.Type.Subc
 
   addSubcommand(input: SubcommandBuilderInput) {
     const option = getSubcommandFromInput(input);
-    this.options.push(option);
+    this.options.set(Command.getOptionKey(option), option);
     return this;
   }
 
@@ -38,7 +38,7 @@ export class SubcommandGroup extends Option<Commands.ChatInput.Options.Type.Subc
 
     (
       data as unknown as Commands.ChatInput.Options.Outgoing.SubcommandGroup
-    ).options = this.options.map(opt => opt.toJSON());
+    ).options = [...this.options.values()].map(opt => opt.toJSON());
 
     return data;
   }

@@ -174,7 +174,7 @@ export namespace Commands {
         export interface SubcommandGroup {
           name: string;
           type: Options.Type.SubcommandGroup;
-          options: Subcommand[];
+          options: [Subcommand?];
         }
 
         export type String = DataOptionBase<Options.Type.String, string>;
