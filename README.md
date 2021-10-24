@@ -2,6 +2,8 @@
 
 An extremely powerful, library agnostic, interactions framework.
 
+__⚠ The quick guide is subject to change, and demonstrates WIP functionality, that doesn't have feature-complete code__ 
+
 # Table of Contents
 
 * [Quick guide](#quick-guide)
