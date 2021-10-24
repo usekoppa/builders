@@ -1,17 +1,16 @@
 # Discord Interactions and Commands Framework (WIP)
 
-An extremely powerful interactions framework for Discord.js.
+An extremely powerful, library agnostic, interactions framework.
 
 # Table of Contents
 
-* [Discord Interactions and Commands Framework (WIP)](#discord-interactions-and-commands-framework-wip)
-   * [Quick guide](#quick-guide)
-      * [Creating the client](#creating-the-client)
-      * [Adding a command](#adding-a-command)
-      * [Syncing the commands](#syncing-the-commands)
-      * [Responding to interactions](#responding-to-interactions)
-      * [Using the included API types](#using-the-included-api-types)
-   * [Inspirations](#inspirations)
+* [Quick guide](#quick-guide)
+   * [Creating the client](#creating-the-client)
+   * [Adding a command](#adding-a-command)
+   * [Syncing the commands](#syncing-the-commands)
+   * [Responding to interactions](#responding-to-interactions)
+   * [Using the included API types](#using-the-included-api-types)
+* [Inspirations](#inspirations)
 
 ## Quick guide
 
