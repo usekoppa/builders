@@ -7,22 +7,6 @@ import { OptionWithChoices } from "./option_with_choices";
 import { ResolvedOptions } from "./resolved_options";
 import { SubcommandGroup } from "./subcommand_group";
 
-export type OptionArgument<InputOption> = InputOption extends SubcommandGroup
-  ? never
-  : InputOption extends Option<infer Type, infer Name, infer IsRequired>
-  ? Record<
-      Name,
-      ResolvedOptions[Type] | (IsRequired extends true ? never : undefined)
-    >
-  : InputOption extends OptionWithChoices<
-      Commands.ChatInput.Options.ChoiceType,
-      infer Name,
-      infer IsRequired,
-      infer Value
-    >
-  ? Record<Name, Value | (IsRequired extends true ? never : undefined)>
-  : never;
-
 export class Option<
   Type extends
     | Commands.ChatInput.Options.DataType
@@ -71,3 +55,19 @@ export class Option<
     } as Commands.ChatInput.Options.Outgoing.DataOption;
   }
 }
+
+export type OptionArgument<InputOption> = InputOption extends SubcommandGroup
+  ? never
+  : InputOption extends Option<infer Type, infer Name, infer IsRequired>
+  ? Record<
+      Name,
+      ResolvedOptions[Type] | (IsRequired extends true ? never : undefined)
+    >
+  : InputOption extends OptionWithChoices<
+      Commands.ChatInput.Options.ChoiceType,
+      infer Name,
+      infer IsRequired,
+      infer Value
+    >
+  ? Record<Name, Value | (IsRequired extends true ? never : undefined)>
+  : never;

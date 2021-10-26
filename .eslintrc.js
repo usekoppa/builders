@@ -6,6 +6,7 @@ module.exports = {
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
+
     "prettier",
   ],
   env: {
@@ -17,9 +18,15 @@ module.exports = {
     project: "tsconfig.eslint.json",
     ecmaVersion: 2020,
   },
-  plugins: ["@typescript-eslint", "prettier", "simple-import-sort"],
+  plugins: [
+    "@typescript-eslint",
+    "prettier",
+    "simple-import-sort",
+    "eslint-plugin-tsdoc",
+  ],
   rules: {
     "prettier/prettier": "error",
+    "tsdoc/syntax": "warn",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-unsafe-assignment": "off",

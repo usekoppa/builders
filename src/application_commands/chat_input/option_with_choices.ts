@@ -6,6 +6,9 @@ import { JSONifiable } from "../../JSONifiable";
 import { Option } from "./option";
 import { ResolvedOptions } from "./resolved_options";
 
+/**
+ * An option with choices
+ */
 export class OptionWithChoices<
     Type extends Commands.ChatInput.Options.ChoiceType = Commands.ChatInput.Options.ChoiceType,
     Name extends string = string,
@@ -17,6 +20,12 @@ export class OptionWithChoices<
 {
   readonly choices?: APIApplicationCommandOptionChoice[];
 
+  /**
+   * Sets the name of the Option
+   *
+   * @param name the name of the option
+   * @returns Itself with extra type information
+   */
   setName<NewName extends string>(name: NewName) {
     super.setName(name);
     return this as unknown as OptionWithChoices<

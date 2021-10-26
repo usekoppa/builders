@@ -1,20 +1,34 @@
 import { APIMessageComponentEmoji } from "discord-api-types";
 
-import { Components } from "../../api/components";
+import { Components } from "../../api";
 import { JSONifiable } from "../../JSONifiable";
-import { DataComponent, validateCustomID } from "../data_component";
+import { DataComponent } from "../data_component";
 import { validateLabel } from "../validate_label";
 
 import { DataButton } from "./data_button";
 import { LinkButton } from "./link_button";
 
+/**
+ * A button component of any type, although by default it is a data button.
+ *
+ * @typeParam Style - The style of the button. The button becomes
+ *                    a {@link LinkButton} if this is set as {@link Components.Buttons.Style.Link}
+ */
 export class Button<
     Style extends Components.Buttons.Style = Components.Buttons.Style.Primary
   >
   extends DataComponent<Components.Type.Button>
   implements JSONifiable<Components.Buttons.Button & { style: Style }>
 {
+  /**
+   * The text inside of the button that the user sees on their client.
+   */
   readonly label?: string;
+
+  /**
+   * An emoji to show inside the button.
+   * If a label is present on the button, the emoji is to the left of the label.
+   */
   readonly emoji?: APIMessageComponentEmoji;
   readonly style = Components.Buttons.Style.Primary as Style;
   readonly URL?: string;
@@ -23,6 +37,13 @@ export class Button<
     super(Components.Type.Button);
   }
 
+  /**
+   * Sets a label for the button.
+   * @see {@link Button.label} for more information on button labels.
+   *
+   * @param label - The label.
+   * @returns `this`
+   */
   setLabel(label: string) {
     validateLabel(label);
     Reflect.set(this, "label", label);
@@ -68,7 +89,7 @@ export class Button<
     ) {
       data.url = this.URL;
     } else {
-      validateCustomID(this.customID);
+      DataComponent.validateCustomID(this.customID);
       data.custom_id = this.customID;
     }
 

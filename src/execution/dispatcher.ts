@@ -8,7 +8,7 @@ interface Executables {
   };
   commands: {
     chatInputCmds: Map<string, Command>;
-    contextMenus: Map<string, 
+    contextMenus: Map<string, ContextMe
   }
 
 }

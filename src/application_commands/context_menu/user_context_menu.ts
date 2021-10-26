@@ -1,8 +1,11 @@
 import { Commands } from "../../api";
 
-import { BaseContextMenu } from "./base_context_menu";
+import { ContextMenu } from "./context_menu";
 
-export class UserContextMenu extends BaseContextMenu<Commands.Type.UserContextMenu> {
+/**
+ * A user context menu.
+ */
+export class UserContextMenu extends ContextMenu<Commands.Type.UserContextMenu> {
   constructor() {
     super(Commands.Type.UserContextMenu);
   }

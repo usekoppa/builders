@@ -16,7 +16,7 @@ export class SelectMenuOption<Value extends string = string>
   readonly default?: boolean;
 
   setValue<NewValue extends string>(value: NewValue) {
-    validateValue(value);
+    SelectMenuOption.validateValue(value);
     Reflect.set(this, "value", value);
     return this as unknown as SelectMenuOption<NewValue>;
   }
@@ -45,7 +45,7 @@ export class SelectMenuOption<Value extends string = string>
 
   toJSON() {
     validateLabel(this.label);
-    validateValue(this.value);
+    SelectMenuOption.validateValue(this.value);
 
     const data: Record<string, unknown> = {
       label: this.label,
@@ -67,11 +67,11 @@ export class SelectMenuOption<Value extends string = string>
 
     return data as unknown as Components.SelectMenu.Option;
   }
-}
 
-function validateValue(value: unknown): asserts value is string {
-  const validator = new StringValidator("value", value);
-  validator.meetsLength(100);
-  validator.hasNoSymbols();
-  validator.isLowercase();
+  private static validateValue(value: unknown): asserts value is string {
+    const validator = new StringValidator("value", value);
+    validator.meetsLength(100);
+    validator.hasNoSymbols();
+    validator.isLowercase();
+  }
 }

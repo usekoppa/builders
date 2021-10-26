@@ -1,4 +1,4 @@
-import { validateName } from "../name";
+import { Name, validateName } from "../name";
 import { validateBoolean } from "../validate_boolean";
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -8,10 +8,6 @@ import type {
 } from "./chat_input";
 /* eslint-enable @typescript-eslint/no-unused-vars */
 
-// This class isn't any stricter since Command also constitutes subcommands.
-// That means if we made ApplicationCommand JSONifiable, it would not have any intersection
-// with the return type of the Subcommand Option data.
-
 /**
  * A basic application command
  *
@@ -19,16 +15,10 @@ import type {
  * It does not implement the JSONifiable interface because the {@link _DocCommand Command} class
  * has no overlap with the {@link _DocSubcommand Subcommand} type.
  */
-export abstract class ApplicationCommand {
+export abstract class ApplicationCommand implements Name {
   readonly name!: string;
   readonly defaultPermission?: boolean;
 
-  /**
-   * @name setName
-   * @description set's the name of the application command
-   * @param name {string} The name of the application command
-   * @returns {this}
-   */
   setName(name: string) {
     validateName(name);
     Reflect.set(this, "name", name);
@@ -37,19 +27,25 @@ export abstract class ApplicationCommand {
 
   /**
    * Makes the command use the default permissions set by Discord.
-   * it should be noted that setting this to false will mean you are
+   *
+   * @remarks
+   * Setting this to false will mean you are
    * required to set it later via the permissions endpoint.
-   * @param defaultPermission {boolean} The default permission
+   *
+   * @param defaultPermission The default permission
    */
   setDefaultPermission(defaultPermission: boolean) {
-    validateDefaultPermission(defaultPermission);
+    ApplicationCommand.validateDefaultPermission(defaultPermission);
     Reflect.set(this, "defaultPermission", defaultPermission);
     return this;
   }
 
   /**
-   * 
-   * @returns 
+   * Produces a bare-bones json object for other application command types to utilise
+   *
+   * @returns A data object with the name and potentially the default permission preference
+   *
+   * @internal
    */
   protected _toJSON() {
     validateName(this.name);
@@ -58,22 +54,16 @@ export abstract class ApplicationCommand {
     };
 
     if (typeof this.defaultPermission !== "undefined") {
-      validateDefaultPermission(this.defaultPermission);
+      ApplicationCommand.validateDefaultPermission(this.defaultPermission);
       data.default_permission = this.defaultPermission;
     }
 
     return data;
   }
-}
 
-function validateDefaultPermission(
-  defaultPermission: unknown
-): asserts defaultPermission is boolean {
-  validateBoolean("default permission", defaultPermission);
+  private static validateDefaultPermission(
+    defaultPermission: unknown
+  ): asserts defaultPermission is boolean {
+    validateBoolean("default permission", defaultPermission);
+  }
 }
-
-/**
- * @typedef {Object} ApplicationCommand~toJSONResult
- * @property {string} name The name of the application command.
- * @property {default_permission}
- */

@@ -31,9 +31,21 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
         : Commands.ChatInput.Outgoing.Command
     >
 {
+  /**
+   * The command's description.
+   */
   readonly description!: string;
+
+  /**
+   * The options for the command
+   */
   readonly options?: Map<symbol, Option | Subcommand>;
 
+  /**
+   * The executor for the command.
+   *
+   * @internal
+   */
   readonly [kExecute]?: Executor<CommandContext<Arguments>>;
 
   protected readonly type = this.isSubcommand
@@ -71,8 +83,8 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
 
   /**
    * Adds a boolean option to the command.
-   * @param {BuilderInput} input
-   * @returns
+   * @param input An option or callback that returns an option.
+   * @returns Itself with extra type information.
    */
   addBooleanOption(
     input: BuilderInput<Option<Commands.ChatInput.Options.Type.Boolean>>
@@ -84,6 +96,11 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
     );
   }
 
+  /**
+   * Adds an integer option to the command.
+   * @param input An option or callback that returns an option.
+   * @returns Itself with extra type information.
+   */
   addIntegerOption(
     input: BuilderInput<
       OptionWithChoices<Commands.ChatInput.Options.Type.Integer>
@@ -96,6 +113,11 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
     );
   }
 
+  /**
+   * Adds a mentionable option to the command.
+   * @param input An option or callback that returns an option.
+   * @returns Itself with extra type information.
+   */
   addMentionableOption(
     input: BuilderInput<Option<Commands.ChatInput.Options.Type.Mentionable>>
   ) {
@@ -106,6 +128,11 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
     );
   }
 
+  /**
+   * Adds a number option to the command.
+   * @param input An option or callback that returns an option.
+   * @returns Itself with extra type information.
+   */
   addNumberOption(
     input: BuilderInput<
       OptionWithChoices<Commands.ChatInput.Options.Type.Number>
@@ -118,12 +145,22 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
     );
   }
 
+  /**
+   * Adds a role option to the command.
+   * @param input An option or callback that returns an option.
+   * @returns Itself with extra type information.
+   */
   addRoleOption(
     input: BuilderInput<Option<Commands.ChatInput.Options.Type.Role>>
   ) {
     return this.#addOption(Option, Commands.ChatInput.Options.Type.Role, input);
   }
 
+  /**
+   * Adds a string option to the command.
+   * @param input An option or callback that returns an option.
+   * @returns Itself with extra type information.
+   */
   addStringOption(
     input: BuilderInput<
       OptionWithChoices<Commands.ChatInput.Options.Type.String>
@@ -136,12 +173,22 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
     );
   }
 
+  /**
+   * Adds a user option to the command.
+   * @param input An option or callback that returns an option.
+   * @returns Itself with extra type information.
+   */
   addUserOption(
     input: BuilderInput<Option<Commands.ChatInput.Options.Type.User>>
   ) {
     return this.#addOption(Option, Commands.ChatInput.Options.Type.User, input);
   }
 
+  /**
+   * Adds a channel option to the command.
+   * @param input An option or callback that returns an option.
+   * @returns Itself with extra type information.
+   */
   addChannelOption(input: BuilderInput<ChannelOption>) {
     return this.#addOption(
       ChannelOption,
@@ -150,6 +197,11 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
     );
   }
 
+  /**
+   * Adds a subcommand group to the command.
+   * @param input An subcommand group or callback that returns a subcommand group.
+   * @returns Itself with extra type information.
+   */
   addSubcommandGroup(input: BuilderInput<SubcommandGroup>) {
     if (this.isSubcommand) {
       throw new Error("You can not add a subcommand group to a subcommand");
