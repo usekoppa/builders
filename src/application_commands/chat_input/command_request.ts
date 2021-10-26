@@ -1,4 +1,4 @@
-import { Commands } from "../../api/commands";
+import { Commands } from "../../api";
 
 import { Command } from "./command";
 import { Subcommand } from "./subcommand";

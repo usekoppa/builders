@@ -1,4 +1,4 @@
-import { Interactions } from "./api/interactions";
+import { Interactions } from "../api/interactions";
 
 export const kExecute = Symbol(
   "discord-interactions-framework.executable.execute"

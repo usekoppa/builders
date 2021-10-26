@@ -1,9 +1,10 @@
-import { Commands } from "../../api/commands";
+import { Commands } from "../../api";
 import { JSONifiable } from "../../JSONifiable";
-import { validateName } from "../../name_and_description";
+import { Name, validateName } from "../../name";
 
-export abstract class BaseMenu<Type extends Commands.ContextMenuType>
+export abstract class BaseContextMenu<Type extends Commands.ContextMenuType>
   implements
+    Name,
     JSONifiable<Commands.ContextMenu.Outgoing.ContextMenu & { type: Type }>
 {
   readonly name!: string;

@@ -1,6 +1,6 @@
 import { APIChannel, APIRole, APIUser } from "discord-api-types";
 
-import { Commands } from "../../api/commands";
+import { Commands } from "../../api";
 
 import { Subcommand } from "./subcommand";
 

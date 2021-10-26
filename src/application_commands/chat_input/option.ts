@@ -1,10 +1,7 @@
-import { Commands } from "../../api/commands";
+import { Commands } from "../../api";
+import { Description, validateDescription } from "../../description";
 import { JSONifiable } from "../../JSONifiable";
-import {
-  NameAndDescription,
-  validateDescription,
-  validateName,
-} from "../../name_and_description";
+import { Name as IName, validateName } from "../../name";
 
 import { OptionWithChoices } from "./option_with_choices";
 import { ResolvedOptions } from "./resolved_options";
@@ -35,7 +32,8 @@ export class Option<
   Name extends string = string,
   IsRequired extends boolean = boolean
 > implements
-    NameAndDescription,
+    IName,
+    Description,
     JSONifiable<Commands.ChatInput.Options.Outgoing.DataOption>
 {
   readonly name!: Name;
@@ -45,13 +43,13 @@ export class Option<
   constructor(public readonly type: Type) {}
 
   setName<NewName extends string>(name: NewName) {
-    validateName("option", name);
+    validateName(name);
     Reflect.set(this, "name", name);
     return this as unknown as Option<Type, NewName, IsRequired>;
   }
 
   setDescription(description: string) {
-    validateDescription("option", description);
+    validateDescription(description);
     Reflect.set(this, "description", description);
     return this;
   }
@@ -62,8 +60,8 @@ export class Option<
   }
 
   toJSON() {
-    validateName("option", this.name);
-    validateDescription("option", this.description);
+    validateName(this.name);
+    validateDescription(this.description);
 
     return {
       type: this.type,

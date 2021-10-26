@@ -2,14 +2,11 @@ import { APIMessageComponentEmoji } from "discord-api-types";
 
 import { Components } from "../../api/components";
 import { JSONifiable } from "../../JSONifiable";
-import { DataComponent, validateCustomId } from "../data_component";
+import { DataComponent, validateCustomID } from "../data_component";
 import { validateLabel } from "../validate_label";
 
+import { DataButton } from "./data_button";
 import { LinkButton } from "./link_button";
-
-export type NormalButton<
-  Style extends Components.Buttons.NormalButtonStyle = Components.Buttons.Style.Primary
-> = Omit<Button<Style>, "setUrl" | "url">;
 
 export class Button<
     Style extends Components.Buttons.Style = Components.Buttons.Style.Primary
@@ -20,7 +17,7 @@ export class Button<
   readonly label?: string;
   readonly emoji?: APIMessageComponentEmoji;
   readonly style = Components.Buttons.Style.Primary as Style;
-  readonly url?: string;
+  readonly URL?: string;
 
   constructor() {
     super(Components.Type.Button);
@@ -41,13 +38,13 @@ export class Button<
     Reflect.set(this, "style", style);
     return this as unknown as NewStyle extends Components.Buttons.Style.Link
       ? LinkButton
-      : NewStyle extends Components.Buttons.NormalButtonStyle
-      ? NormalButton<NewStyle>
+      : NewStyle extends Components.Buttons.DataButtonStyle
+      ? DataButton<NewStyle>
       : never;
   }
 
-  setCustomId(customId: string) {
-    super.setCustomId(customId);
+  setCustomID(customID: string) {
+    super.setCustomID(customID);
     if (this.style === Components.Buttons.Style.Link) {
       this.setStyle(Components.Buttons.Style.Primary);
     }
@@ -55,8 +52,8 @@ export class Button<
     return this;
   }
 
-  setUrl(url: string) {
-    Reflect.set(this, "url", url);
+  setURL(URL: string) {
+    Reflect.set(this, "URL", URL);
     return this as unknown as LinkButton;
   }
 
@@ -66,13 +63,13 @@ export class Button<
     };
 
     if (
-      typeof this.url !== "undefined" &&
+      typeof this.URL !== "undefined" &&
       this.style === Components.Buttons.Style.Link
     ) {
-      data.url = this.url;
+      data.url = this.URL;
     } else {
-      validateCustomId(this.customId);
-      data.custom_id = this.customId;
+      validateCustomID(this.customID);
+      data.custom_id = this.customID;
     }
 
     let labelTestSucceeded = false;

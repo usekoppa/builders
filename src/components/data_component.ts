@@ -7,23 +7,23 @@ export abstract class DataComponent<
   Type extends Components.DataType
 > extends Component<Type> {
   readonly disabled?: boolean;
-  readonly customId?: string;
+  readonly customID?: string;
 
   setDisabled(disabled: boolean) {
     Reflect.set(this, "disabled", disabled);
     return this;
   }
 
-  setCustomId(customId: string) {
-    validateCustomId(customId);
-    Reflect.set(this, "customId", customId);
+  setCustomID(customId: string) {
+    validateCustomID(customId);
+    Reflect.set(this, "customID", customId);
     return this;
   }
 
   protected _toJSON() {
-    validateCustomId(this.customId);
+    validateCustomID(this.customID);
     const data: Record<string, unknown> = {
-      custom_id: this.customId,
+      custom_id: this.customID,
     };
 
     if (typeof this.disabled !== "undefined") data.disabled = this.disabled;
@@ -31,10 +31,10 @@ export abstract class DataComponent<
   }
 }
 
-export function validateCustomId(
+export function validateCustomID(
   customId: unknown
 ): asserts customId is string {
-  const validator = new StringValidator("customId", customId);
+  const validator = new StringValidator("customID", customId);
   validator.meetsLength(100);
   validator.hasNoSymbols();
   validator.isLowercase();

@@ -11,7 +11,7 @@ type BuilderInput<InputOption extends SelectMenuOption = SelectMenuOption> =
 export class SelectMenu<
   Values extends string[] = []
 > extends DataComponent<Components.Type.SelectMenu> {
-  readonly customId!: string;
+  readonly customID!: string;
   readonly options?: SelectMenuOption[];
   readonly placeholder?: string;
   readonly minSelections?: number;

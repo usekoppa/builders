@@ -1,11 +1,12 @@
 import { Embed } from "@discordjs/builders";
 
-import { Interactions } from "../../api/interactions";
-import { JSONifiable } from "../../JSONifiable";
+import { Interactions } from "../api/interactions";
+import { Component } from "../components/component";
+import type { JSONifiable } from "../JSONifiable";
 
 import { CommandRequest } from "./request";
 
-export class CommandResponse
+export class InteractionResponse
   implements
     JSONifiable<
       Interactions.Outgoing.Response & {
@@ -21,13 +22,13 @@ export class CommandResponse
   readonly embeds?: Embed[];
   readonly isEphemeral?: boolean;
   readonly flags?: Interactions.Outgoing.Flags;
-  readonly tts?: boolean;
-  readonly components?: 
+  readonly TTS?: boolean;
+  readonly components?: Component[];
 
-  #request: CommandRequest;
+  constructor(public readonly request: CommandRequest) {}
 
-  constructor(request: CommandRequest) {
-    this.#request = request;
+  setTTS(TTS: boolean) {
+
   }
 
   toJSON() {

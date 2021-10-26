@@ -20,7 +20,6 @@ __⚠ The quick guide is subject to change, and demonstrates WIP and conceptual 
 
 ```ts
 import { Client} from "@koppa/framework";
-import { createServer } from "node:http";
 
 const clientId = "¯\_(ツ)_/¯";
 const clientSecret = "¯\_(ツ)_/¯";

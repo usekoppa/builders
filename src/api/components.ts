@@ -35,7 +35,7 @@ export namespace Components {
       Link = 5,
     }
 
-    export type NormalButtonStyle =
+    export type DataButtonStyle =
       | Buttons.Style.Primary
       | Buttons.Style.Secondary
       | Buttons.Style.Success
@@ -43,7 +43,7 @@ export namespace Components {
 
     export type Button = Normal | Link;
 
-    export interface Normal<Style extends NormalButtonStyle = NormalButtonStyle>
+    export interface Normal<Style extends DataButtonStyle = DataButtonStyle>
       extends Buttons.Base<Style> {
       custom_id: string;
     }
