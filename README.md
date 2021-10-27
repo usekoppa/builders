@@ -17,10 +17,10 @@ __⚠ The quick guide is subject to change, and demonstrates WIP and conceptual 
 
 ## Todo
 
-- [] Overhaul executors
-- [] Add an HTTP interactions middleware.
-- [] Create a client that mediates the creation of interaction data, caches that data and pushes it to the API.
-- [] Add action rows.
+- [ ] Overhaul executors
+- [ ] Add an HTTP interactions middleware.
+- [ ] Create a client that mediates the creation of interaction data, caches that data and pushes it to the API.
+- [ ] Add action rows.
 
 ## Quick guide
 
