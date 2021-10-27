@@ -1,11 +1,12 @@
 # Discord Interactions and Commands Framework (WIP)
 
-An extremely powerful, library agnostic, interactions framework.
+An opinionated, flexible and library agnostic library to use interactions with the Discord API.
 
 __⚠ The quick guide is subject to change, and demonstrates WIP and conceptual functionality.__
 
 # Table of Contents
 
+* [Todo](#todo)
 * [Quick guide](#quick-guide)
    * [Creating the client](#creating-the-client)
    * [Adding a command](#adding-a-command)
@@ -13,6 +14,13 @@ __⚠ The quick guide is subject to change, and demonstrates WIP and conceptual 
    * [Responding to interactions](#responding-to-interactions)
    * [Using the included API types](#using-the-included-api-types)
 * [Inspirations](#inspirations)
+
+## Todo
+
+- [] Overhaul executors
+- [] Add an HTTP interactions middleware.
+- [] Create a client that mediates the creation of interaction data, caches that data and pushes it to the API.
+- [] Add action rows.
 
 ## Quick guide
 
