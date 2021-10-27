@@ -5,7 +5,9 @@ import { Component } from "./component";
 
 /**
  * A base component for components that receive interactions should extend from.
+ *
  * @typeParam Type - The type of component. Only data types are allowed.
+ *                   @see {@link Components.DataType} for a list of compatible types.
  */
 export abstract class DataComponent<
   Type extends Components.DataType
