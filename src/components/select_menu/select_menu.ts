@@ -1,4 +1,4 @@
-import { Components } from "../../api/components";
+import { Components } from "../../api";
 import { StringValidator } from "../../string_validator";
 import { DataComponent } from "../data_component";
 

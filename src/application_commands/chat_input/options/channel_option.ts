@@ -1,9 +1,14 @@
 import type { ChannelType } from "discord-api-types";
 
-import { Commands } from "../../api";
+import { Commands } from "../../../api";
 
 import { Option } from "./option";
 
+/**
+ * A channel option for a command.
+ * @typeParam Name - The name of the channel option.
+ * @typeParam IsRequired - Whether or not the option is a required argument.
+ */
 export class ChannelOption<
   Name extends string = string,
   IsRequired extends boolean = boolean

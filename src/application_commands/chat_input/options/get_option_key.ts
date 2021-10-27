@@ -1,7 +1,7 @@
 /**
  * Creates an option key to access commands and options from a map.
  *
- * @param option An option with basic information.
+ * @param option - An option with basic information.
  * @param isCommand - Whether or not the option provided is a command.S
  * @returns A symbol containing the name and type of option.
  */

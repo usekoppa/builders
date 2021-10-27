@@ -1,6 +1,5 @@
-import { Commands } from "../../api";
-
-import { Command } from "./command";
+import { Commands } from "../../../api";
+import { Command } from "../command";
 
 /**
  * A subcommand option.

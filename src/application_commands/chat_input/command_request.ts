@@ -1,8 +1,7 @@
 import { Commands } from "../../api";
 
 import { Command } from "./command";
-import { Subcommand } from "./subcommand";
-import { SubcommandGroup } from "./subcommand_group";
+import { Subcommand, SubcommandGroup } from "./options";
 
 export class CommandRequest<Arguments = {}> {
   readonly subcommandGroup?: SubcommandGroup;

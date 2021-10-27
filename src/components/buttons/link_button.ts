@@ -1,4 +1,4 @@
-import { Components } from "../../api/components";
+import { Components } from "../../api";
 
 import { Button } from "./button";
 

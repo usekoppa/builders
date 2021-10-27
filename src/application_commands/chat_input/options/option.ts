@@ -1,11 +1,7 @@
-import { Commands } from "../../api";
-import { Description, validateDescription } from "../../description";
-import { JSONifiable } from "../../JSONifiable";
-import { Name as IName, validateName } from "../../name";
-
-import { OptionWithChoices } from "./option_with_choices";
-import { ResolvedOptions } from "./resolved_options";
-import { SubcommandGroup } from "./subcommand_group";
+import { Commands } from "../../../api";
+import { Description, validateDescription } from "../../../description";
+import { JSONifiable } from "../../../JSONifiable";
+import { Name as IName, validateName } from "../../../name";
 
 export class Option<
   Type extends
@@ -22,6 +18,10 @@ export class Option<
 {
   readonly name!: Name;
   readonly description!: string;
+
+  /**
+   * Whether or not the user is required to supply an option for this argument.
+   */
   readonly required?: IsRequired;
 
   constructor(public readonly type: Type) {}
@@ -38,6 +38,13 @@ export class Option<
     return this;
   }
 
+  /**
+   * Sets whether or not an option is required.
+   * @see {@link Option.required} for more information.
+   *
+   * @param required - Whether or not the option is required.
+   * @returns `this` with additional type information.
+   */
   setRequired<NewIsRequired extends boolean>(required: NewIsRequired) {
     Reflect.set(this, "required", required);
     return this as unknown as Option<Type, Name, NewIsRequired>;
@@ -55,19 +62,3 @@ export class Option<
     } as Commands.ChatInput.Options.Outgoing.DataOption;
   }
 }
-
-export type OptionArgument<InputOption> = InputOption extends SubcommandGroup
-  ? never
-  : InputOption extends Option<infer Type, infer Name, infer IsRequired>
-  ? Record<
-      Name,
-      ResolvedOptions[Type] | (IsRequired extends true ? never : undefined)
-    >
-  : InputOption extends OptionWithChoices<
-      Commands.ChatInput.Options.ChoiceType,
-      infer Name,
-      infer IsRequired,
-      infer Value
-    >
-  ? Record<Name, Value | (IsRequired extends true ? never : undefined)>
-  : never;

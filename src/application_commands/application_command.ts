@@ -1,5 +1,5 @@
 import { Name, validateName } from "../name";
-import { validateBoolean } from "../validate_boolean";
+import { validateValueIsBoolean } from "../validate_boolean";
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import type {
@@ -12,8 +12,8 @@ import type {
  * A basic application command
  *
  * @remarks
- * It does not implement the JSONifiable interface because the {@link _DocCommand Command} class
- * has no overlap with the {@link _DocSubcommand Subcommand} type.
+ * It does not implement the JSONifiable interface because the {@link _DocCommand |  Command} class
+ * has no overlap with the {@link _DocSubcommand | Subcommand} type.
  */
 export abstract class ApplicationCommand implements Name {
   readonly name!: string;
@@ -32,7 +32,7 @@ export abstract class ApplicationCommand implements Name {
    * Setting this to false will mean you are
    * required to set it later via the permissions endpoint.
    *
-   * @param defaultPermission The default permission
+   * @param defaultPermission - The default permission
    */
   setDefaultPermission(defaultPermission: boolean) {
     ApplicationCommand.validateDefaultPermission(defaultPermission);
@@ -64,6 +64,6 @@ export abstract class ApplicationCommand implements Name {
   private static validateDefaultPermission(
     defaultPermission: unknown
   ): asserts defaultPermission is boolean {
-    validateBoolean("default permission", defaultPermission);
+    validateValueIsBoolean("default permission", defaultPermission);
   }
 }

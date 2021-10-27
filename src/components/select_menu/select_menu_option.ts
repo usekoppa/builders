@@ -1,6 +1,6 @@
 import { APIMessageComponentEmoji } from "discord-api-types";
 
-import { Components } from "../../api/components";
+import { Components } from "../../api";
 import { validateDescription } from "../../description";
 import { JSONifiable } from "../../JSONifiable";
 import { StringValidator } from "../../string_validator";

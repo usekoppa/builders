@@ -9,16 +9,28 @@ import {
 import type { JSONifiable } from "../../JSONifiable";
 import { ApplicationCommand } from "../application_command";
 
-import { ChannelOption } from "./channel_option";
-import { BasicOption, getOptionKey } from "./get_option_key";
-import { Option, OptionArgument } from "./option";
-import { OptionWithChoices } from "./option_with_choices";
-import type { Subcommand } from "./subcommand";
-import type { SubcommandBuilderInput } from "./subcommand_builder_input";
-import { getSubcommandFromInput, SubcommandGroup } from "./subcommand_group";
+import {
+  BuilderInput,
+  getOptionFromInput,
+  getSubcommandFromInput,
+  SubcommandBuilderInput,
+} from "./builder_input";
+import {
+  BasicOption,
+  ChannelOption,
+  getOptionKey,
+  Option,
+  OptionArgument,
+  OptionWithChoices,
+  Subcommand,
+  SubcommandGroup,
+} from "./options";
 
 /**
  * A chat input command.
+ *
+ * @typeParam Arguments - The type data of the arguments that will be received on an interaction.
+ * @typeParam IsSubcommand - Whether or not the command is a subcommand.
  */
 export class Command<Arguments = {}, IsSubcommand extends boolean = false>
   extends ApplicationCommand
@@ -62,8 +74,9 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
 
   /**
    * Set's the command's description.
-   * @param {string} description The command's description.
-   * @returns {this}
+   *
+   * @param description - The command's description.
+   * @returns `this`
    */
   setDescription(description: string) {
     validateDescription(description);
@@ -73,8 +86,9 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
 
   /**
    * Set's the executor for the command.
-   * @param {Executor} executor The command's execution handler.
-   * @returns
+   *
+   * @param executor - The command's execution handler.
+   * @returns `this`
    */
   setExecutor(executor: Executor<CommandContext<Arguments>>) {
     Reflect.set(this, kExecute, executor);
@@ -83,7 +97,8 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
 
   /**
    * Adds a boolean option to the command.
-   * @param input An option or callback that returns an option.
+   *
+   * @param input - An option or callback that returns an option.
    * @returns Itself with extra type information.
    */
   addBooleanOption(
@@ -98,7 +113,8 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
 
   /**
    * Adds an integer option to the command.
-   * @param input An option or callback that returns an option.
+   *
+   * @param input - An option or callback that returns an option.
    * @returns Itself with extra type information.
    */
   addIntegerOption(
@@ -115,8 +131,9 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
 
   /**
    * Adds a mentionable option to the command.
-   * @param input An option or callback that returns an option.
-   * @returns Itself with extra type information.
+   *
+   * @param input - An option or callback that returns an option.
+   * @returns `this` with extra type information.
    */
   addMentionableOption(
     input: BuilderInput<Option<Commands.ChatInput.Options.Type.Mentionable>>
@@ -130,8 +147,9 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
 
   /**
    * Adds a number option to the command.
-   * @param input An option or callback that returns an option.
-   * @returns Itself with extra type information.
+   *
+   * @param input - An option or callback that returns an option.
+   * @returns `this` with extra type information.
    */
   addNumberOption(
     input: BuilderInput<
@@ -147,8 +165,9 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
 
   /**
    * Adds a role option to the command.
-   * @param input An option or callback that returns an option.
-   * @returns Itself with extra type information.
+   *
+   * @param input - An option or callback that returns an option.
+   * @returns `this` with extra type information.
    */
   addRoleOption(
     input: BuilderInput<Option<Commands.ChatInput.Options.Type.Role>>
@@ -158,8 +177,9 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
 
   /**
    * Adds a string option to the command.
-   * @param input An option or callback that returns an option.
-   * @returns Itself with extra type information.
+   *
+   * @param input - An option or callback that returns an option.
+   * @returns `this` with extra type information.
    */
   addStringOption(
     input: BuilderInput<
@@ -175,8 +195,9 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
 
   /**
    * Adds a user option to the command.
-   * @param input An option or callback that returns an option.
-   * @returns Itself with extra type information.
+   *
+   * @param input - An option or callback that returns an option.
+   * @returns `this` with extra type information.
    */
   addUserOption(
     input: BuilderInput<Option<Commands.ChatInput.Options.Type.User>>
@@ -186,8 +207,9 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
 
   /**
    * Adds a channel option to the command.
-   * @param input An option or callback that returns an option.
-   * @returns Itself with extra type information.
+   *
+   * @param input - An option or callback that returns an option.
+   * @returns `this` with extra type information.
    */
   addChannelOption(input: BuilderInput<ChannelOption>) {
     return this.#addOption(
@@ -199,8 +221,9 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
 
   /**
    * Adds a subcommand group to the command.
-   * @param input An subcommand group or callback that returns a subcommand group.
-   * @returns Itself with extra type information.
+   *
+   * @param input - A subcommand group or callback that returns a subcommand group.
+   * @returns `this` with extra type information.
    */
   addSubcommandGroup(input: BuilderInput<SubcommandGroup>) {
     if (this.isSubcommand) {
@@ -217,6 +240,12 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
     return this as unknown as SubcommandGroupParent;
   }
 
+  /**
+   * Adds a subcommand to the command.
+   *
+   * @param input - A subcommand or callback that returns a subcommand.
+   * @returns `this` with extra type information.
+   */
   addSubcommand(input: SubcommandBuilderInput) {
     const option = getSubcommandFromInput(input);
     this.#setOption(option);
@@ -303,9 +332,10 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
   }
 
   /**
+   * Gets an option instance that's associated with this command.
    *
-   * @param {BasicOption} option
-   * @returns
+   * @param option - The name and type of option.
+   * @returns An option.
    */
   protected getOption(option: BasicOption) {
     return this.options?.get(getOptionKey(option));
@@ -330,7 +360,7 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
       );
     }
 
-    const option = input instanceof Option ? input : input(new NewOption(type));
+    const option = getOptionFromInput(NewOption, type, input);
     this.#setOption(option);
 
     return this as unknown as CommandReturnType<
@@ -350,10 +380,6 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
     }
   }
 }
-
-export type BuilderInput<InputOption extends Option = Option> =
-  | InputOption
-  | ((option: InputOption) => InputOption);
 
 type CommandReturnType<
   Arguments,
