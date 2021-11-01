@@ -6,12 +6,15 @@ import {
   APIMessageApplicationCommandInteractionDataResolved,
   APIUserApplicationCommandInteractionDataResolved,
   ChannelType,
-  RESTPostAPIApplicationCommandsJSONBody,
+  RESTPostAPIChatInputApplicationCommandsJSONBody,
   RESTPostAPIContextMenuApplicationCommandsJSONBody,
   Snowflake,
 } from "discord-api-types";
 
 import { Interactions } from "./interactions";
+// Thanks ESlint, you dumbass....
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { REST } from "./rest";
 
 export namespace Commands {
   export enum Type {
@@ -29,19 +32,25 @@ export namespace Commands {
       id: Snowflake;
       type: Type;
       name: string;
+      default_permission?: boolean;
     }
 
-    export type Wrapper<Data extends Base<Commands.Type>> =
-      Interactions.Incoming.Base<Interactions.Type.ApplicationCommand, Data> &
-        Required<
-          Pick<
-            Interactions.Incoming.Base<
-              Interactions.Type.ApplicationCommand,
-              Data
-            >,
-            "channel_id" | "data"
-          >
-        >;
+    export namespace Wrappers {
+      export type Interaction<Data extends Base<Commands.Type>> =
+        Interactions.Incoming.Base<Interactions.Type.ApplicationCommand, Data> &
+          Required<
+            Pick<
+              Interactions.Incoming.Base<
+                Interactions.Type.ApplicationCommand,
+                Data
+              >,
+              "channel_id" | "data"
+            >
+          >;
+
+      export type REST<Data extends Base<Commands.Type>> =
+        REST.Incoming.Wrapper<Data>;
+    }
   }
 
   export namespace Outgoing {
@@ -52,7 +61,8 @@ export namespace Commands {
 
   export namespace ChatInput {
     export namespace Incoming {
-      export type Interaction = Commands.Incoming.Wrapper<Command>;
+      export type Interaction = Commands.Incoming.Wrappers.Interaction<Command>;
+      export type REST = Commands.Incoming.Wrappers.REST<Command>;
 
       export interface Command
         extends Commands.Incoming.Base<Commands.Type.ChatInput> {
@@ -68,12 +78,14 @@ export namespace Commands {
       export namespace Guild {
         export type Interaction =
           Interactions.Incoming.Guild.Wrapper<ChatInput.Incoming.Interaction>;
+
+        export type REST = REST.Incoming.Guild.Wrapper<ChatInput.Incoming.REST>;
       }
     }
 
     export namespace Outgoing {
       export type Command = Omit<
-        RESTPostAPIApplicationCommandsJSONBody,
+        RESTPostAPIChatInputApplicationCommandsJSONBody,
         "options" | "type"
       > & {
         type?: Commands.Type.ChatInput;
@@ -124,6 +136,7 @@ export namespace Commands {
           name: string;
           description: string;
           required?: boolean;
+          autocomplete?: boolean;
         }
 
         export interface SubcommandGroup
@@ -208,7 +221,10 @@ export namespace Commands {
     }
 
     export namespace Incoming {
-      export type Interaction = Commands.Incoming.Wrapper<ContextMenu>;
+      export type Interaction =
+        Commands.Incoming.Wrappers.Interaction<ContextMenu>;
+
+      export type REST = Commands.Incoming.Wrappers.REST<ContextMenu>;
 
       export interface ContextMenu<
         Type extends Commands.ContextMenuType = Commands.ContextMenuType,
@@ -230,14 +246,18 @@ export namespace Commands {
       export namespace Guild {
         export type Interaction =
           Interactions.Incoming.Guild.Wrapper<ContextMenu.Incoming.Interaction>;
+
+        export type REST =
+          REST.Incoming.Guild.Wrapper<ContextMenu.Incoming.REST>;
       }
     }
 
     export namespace MessageContextMenu {
-      // export namespace Outgoing {}
-
       export namespace Incoming {
-        export type Interaction = Commands.Incoming.Wrapper<MessageContextMenu>;
+        export type Interaction =
+          Commands.Incoming.Wrappers.Interaction<MessageContextMenu>;
+
+        export type REST = Commands.Incoming.Wrappers.REST<MessageContextMenu>;
 
         export type MessageContextMenu = ContextMenu.Incoming.ContextMenu<
           Commands.Type.MessageContextMenu,
@@ -252,6 +272,9 @@ export namespace Commands {
         export namespace Guild {
           export type Interaction =
             Interactions.Incoming.Guild.Wrapper<MessageContextMenu.Incoming.Interaction>;
+
+          export type REST =
+            REST.Incoming.Guild.Wrapper<MessageContextMenu.Incoming.REST>;
         }
       }
     }
@@ -264,7 +287,10 @@ export namespace Commands {
     }
 
     export namespace Incoming {
-      export type Interaction = Commands.Incoming.Wrapper<UserContextMenu>;
+      export type Interaction =
+        Commands.Incoming.Wrappers.Interaction<UserContextMenu>;
+
+      export type REST = Commands.Incoming.Wrappers.REST<UserContextMenu>;
 
       export type UserContextMenu = ContextMenu.Incoming.ContextMenu<
         Commands.Type.UserContextMenu,
@@ -279,6 +305,9 @@ export namespace Commands {
       export namespace Guild {
         export type Interaction =
           Interactions.Incoming.Guild.Wrapper<UserContextMenu.Incoming.Interaction>;
+
+        export type REST =
+          REST.Incoming.Guild.Wrapper<UserContextMenu.Incoming.REST>;
       }
     }
   }

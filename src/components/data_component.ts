@@ -63,7 +63,7 @@ export abstract class DataComponent<
 
   static validateCustomID(customId: unknown): asserts customId is string {
     const validator = new StringValidator("customID", customId);
-    validator.meetsLength(100);
+    validator.withinLength(100);
     validator.hasNoSymbols();
     validator.isLowercase();
   }

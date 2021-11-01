@@ -1,19 +1,23 @@
-# Discord Interactions and Commands Framework (WIP)
+# Koppa Builders
 
-An opinionated, flexible and library agnostic library to use interactions with the Discord API.
+Builders for the Discord API that produce rich
+type data that can be used to produce deterministic and reliable output.
 
-__⚠ The quick guide is subject to change, and demonstrates WIP and conceptual functionality.__
+<!--__⚠ The quick guide is subject to change, and demonstrates WIP and conceptual functionality.-->
 
 # Table of Contents
 
 * [Todo](#todo)
-* [Quick guide](#quick-guide)
+<!--* [Quick guide](#quick-guide)
    * [Creating the client](#creating-the-client)
    * [Adding a command](#adding-a-command)
    * [Syncing the commands](#syncing-the-commands)
    * [Responding to interactions](#responding-to-interactions)
-   * [Using the included API types](#using-the-included-api-types)
+   * [Using the included API types](#using-the-included-api-types)-->
 * [Inspirations](#inspirations)
+
+
+<!--
 
 ## Todo
 
@@ -163,7 +167,7 @@ declare const chatInputCommand = API.Commands.ChatInput.Outgoing.Command;
 // https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-structure
 declare const optionWithChoices = API.Commands.ChatInput.Options.Outgoing.Choice;
 ```
-
+-->
 
 ## Inspirations
  - [Discord API Types](https://github.com/discordjs/discord-api-types)

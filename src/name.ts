@@ -10,15 +10,25 @@ export interface Name {
   readonly name: string;
 
   /**
-   * Set's the name
-   * @param name The name
+   * Sets the name.
+   *
+   * @param name - The name.
    */
   setName(name: string): unknown;
 }
 
+/**
+ * Validates that the name complies with API specifications.
+ *
+ * @remarks
+ * The name must be no greater than 32 characters long.
+ *
+ * @throws {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError | TypeError}
+ * Thrown if any special symbols that are found in the string.
+ */
 export function validateName(name: unknown) {
   const validator = new StringValidator("name", name);
-  validator.meetsLength(32);
+  validator.withinLength(32);
   validator.hasNoSymbols();
   validator.isLowercase();
 }

@@ -1,11 +1,11 @@
 import { Commands } from "../../api";
 import { Description, validateDescription } from "../../description";
-import {
-  Executable,
-  Executor,
-  kCreateContext,
-  kExecute,
-} from "../../execution/executable";
+// import {
+//   Executable,
+//   Executor,
+//   kCreateContext,
+//   kExecute,
+// } from "../../execution/executable";
 import type { JSONifiable } from "../../JSONifiable";
 import { ApplicationCommand } from "../application_command";
 
@@ -16,7 +16,6 @@ import {
   SubcommandBuilderInput,
 } from "./builder_input";
 import {
-  BasicOption,
   ChannelOption,
   getOptionKey,
   Option,
@@ -36,7 +35,6 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
   extends ApplicationCommand
   implements
     Description,
-    Executable<CommandContext<Arguments>>,
     JSONifiable<
       IsSubcommand extends true
         ? Commands.ChatInput.Options.Outgoing.Subcommand
@@ -53,12 +51,12 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
    */
   readonly options?: Map<symbol, Option | Subcommand>;
 
-  /**
-   * The executor for the command.
-   *
-   * @internal
-   */
-  readonly [kExecute]?: Executor<CommandContext<Arguments>>;
+  // /**
+  //  * The executor for the command.
+  //  *
+  //  * @internal
+  //  */
+  // readonly [kExecute]?: Executor<CommandContext<Arguments>>;
 
   protected readonly type = this.isSubcommand
     ? Commands.ChatInput.Options.Type.Subcommand
@@ -84,16 +82,16 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
     return this;
   }
 
-  /**
-   * Set's the executor for the command.
-   *
-   * @param executor - The command's execution handler.
-   * @returns `this`
-   */
-  setExecutor(executor: Executor<CommandContext<Arguments>>) {
-    Reflect.set(this, kExecute, executor);
-    return this;
-  }
+  // /**
+  //  * Set's the executor for the command.
+  //  *
+  //  * @param executor - The command's execution handler.
+  //  * @returns `this`
+  //  */
+  // setExecutor(executor: Executor<CommandContext<Arguments>>) {
+  //   Reflect.set(this, kExecute, executor);
+  //   return this;
+  // }
 
   /**
    * Adds a boolean option to the command.
@@ -273,73 +271,73 @@ export class Command<Arguments = {}, IsSubcommand extends boolean = false>
       : Commands.ChatInput.Outgoing.Command;
   }
 
-  [kCreateContext](interaction: Commands.ChatInput.Incoming.Interaction) {
-    if (typeof this.options === "undefined" || this.options.size === 0) {
-      return Object.freeze({ cmd: void 0, args: {} as Arguments });
-    }
+  // [kCreateContext](interaction: Commands.ChatInput.Incoming.Interaction) {
+  //   if (typeof this.options === "undefined" || this.options.size === 0) {
+  //     return Object.freeze({ cmd: void 0, args: {} as Arguments });
+  //   }
 
-    /* Process subcommands and subcommand groups. */
+  //   /* Process subcommands and subcommand groups. */
 
-    let cmdData = interaction.data as
-      | Commands.ChatInput.Incoming.Command
-      | Commands.ChatInput.Options.Incoming.Subcommand;
+  //   let cmdData = interaction.data as
+  //     | Commands.ChatInput.Incoming.Command
+  //     | Commands.ChatInput.Options.Incoming.Subcommand;
 
-    let cmd = this.getOption(cmdData) as Command | Subcommand;
+  //   let cmd = this.getOption(cmdData) as Command | Subcommand;
 
-    let optionsData =
-      cmdData.options as unknown as Commands.ChatInput.Options.Incoming.DataOption[];
+  //   let optionsData =
+  //     cmdData.options as unknown as Commands.ChatInput.Options.Incoming.DataOption[];
 
-    const subcmdGroupData = optionsData?.[0] as unknown as
-      | Commands.ChatInput.Options.Incoming.SubcommandGroup
-      | undefined;
+  //   const subcmdGroupData = optionsData?.[0] as unknown as
+  //     | Commands.ChatInput.Options.Incoming.SubcommandGroup
+  //     | undefined;
 
-    if (typeof subcmdGroupData !== "undefined") {
-      const group = this.getOption(subcmdGroupData) as SubcommandGroup;
+  //   if (typeof subcmdGroupData !== "undefined") {
+  //     const group = this.getOption(subcmdGroupData) as SubcommandGroup;
 
-      if (typeof group !== "undefined") {
-        const subcmdData = subcmdGroupData.options[0];
+  //     if (typeof group !== "undefined") {
+  //       const subcmdData = subcmdGroupData.options[0];
 
-        // You can't have a subcommand group without a subcommand, this data is corrupt.
-        if (typeof subcmdData === "undefined") return;
+  //       // You can't have a subcommand group without a subcommand, this data is corrupt.
+  //       if (typeof subcmdData === "undefined") return;
 
-        const subcmd = group.options.get(getOptionKey(subcmdData));
-        const subcmdOptionsData = subcmdData?.options;
-        if (typeof subcmdOptionsData !== "undefined") {
-          optionsData = subcmdOptionsData;
-          cmdData = subcmdData;
-          cmd = subcmd as Subcommand;
-        }
-      }
-    }
+  //       const subcmd = group.options.get(getOptionKey(subcmdData));
+  //       const subcmdOptionsData = subcmdData?.options;
+  //       if (typeof subcmdOptionsData !== "undefined") {
+  //         optionsData = subcmdOptionsData;
+  //         cmdData = subcmdData;
+  //         cmd = subcmd as Subcommand;
+  //       }
+  //     }
+  //   }
 
-    /* Gather arguments */
+  //   /* Gather arguments */
 
-    const args: Record<string, unknown> = {};
-    for (const optionData of optionsData) {
-      const option = (cmd as Command).getOption(optionData) as Option;
-      if (
-        typeof option.required === "undefined" &&
-        (typeof optionData.value !== "undefined" || optionData.value !== null)
-      ) {
-        return;
-      }
+  //   const args: Record<string, unknown> = {};
+  //   for (const optionData of optionsData) {
+  //     const option = (cmd as Command).getOption(optionData) as Option;
+  //     if (
+  //       typeof option.required === "undefined" &&
+  //       (typeof optionData.value !== "undefined" || optionData.value !== null)
+  //     ) {
+  //       return;
+  //     }
 
-      // I hate null, I prefer undefined any day.
-      args[option.name] = optionData.value ?? void 0;
-    }
+  //     // I hate null, I prefer undefined any day.
+  //     args[option.name] = optionData.value ?? void 0;
+  //   }
 
-    return { cmd, args } as unknown as CommandContext<Arguments>;
-  }
+  //   return { cmd, args } as unknown as CommandContext<Arguments>;
+  // }
 
-  /**
-   * Gets an option instance that's associated with this command.
-   *
-   * @param option - The name and type of option.
-   * @returns An option.
-   */
-  protected getOption(option: BasicOption) {
-    return this.options?.get(getOptionKey(option));
-  }
+  // /**
+  //  * Gets an option instance that's associated with this command.
+  //  *
+  //  * @param option - The name and type of option.
+  //  * @returns An option.
+  //  */
+  // protected getOption(option: BasicOption) {
+  //   return this.options?.get(getOptionKey(option));
+  // }
 
   #addOption<
     Type extends

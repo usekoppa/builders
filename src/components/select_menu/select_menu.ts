@@ -150,7 +150,7 @@ export class SelectMenu<
 
   private static validatePlaceholder(placeholder: string) {
     const validator = new StringValidator("placeholder", placeholder);
-    validator.meetsLength(100);
+    validator.withinLength(100);
   }
 }
 

@@ -30,7 +30,17 @@ export class Button<
    * If a label is present on the button, the emoji is to the left of the label.
    */
   readonly emoji?: APIMessageComponentEmoji;
+
+  /**
+   * The style of the button.
+   * If the style is of type {@link Components.Buttons.Style.Link},
+   * this component will not receive any interactions.
+   */
   readonly style = Components.Buttons.Style.Primary as Style;
+
+  /**
+   * The URL for the button if it has the {@link Components.Buttons.Style.Link} style.
+   */
   readonly URL?: string;
 
   constructor() {
@@ -50,11 +60,25 @@ export class Button<
     return this;
   }
 
+  /**
+   * Set's an emoji to be displayed on the button.
+   * @see {@link Button.emoji} for more information on button emojis.
+   *
+   * @param emoji - The emoji.
+   * @returns `this`
+   */
   setEmoji(emoji: APIMessageComponentEmoji) {
     Reflect.set(this, "emoji", emoji);
     return this;
   }
 
+  /**
+   * Sets the style of the button.
+   *
+   * @typeParam NewStyle - The style of the component.
+   * @param style  - The style of the component
+   * @returns `this` with additional type information.
+   */
   setStyle<NewStyle extends Components.Buttons.Style>(style: NewStyle) {
     Reflect.set(this, "style", style);
     return this as unknown as NewStyle extends Components.Buttons.Style.Link
@@ -73,8 +97,12 @@ export class Button<
     return this;
   }
 
+  /**
+   * Sets the URL for the button
+   */
   setURL(URL: string) {
     Reflect.set(this, "URL", URL);
+    this.setStyle(Components.Buttons.Style.Link);
     return this as unknown as LinkButton;
   }
 

@@ -48,7 +48,7 @@ export class StringValidator {
    * @throws {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError | TypeError}
    * Thrown if the string has a length of 0 or exceeds the maximum length.
    */
-  meetsLength(length: number) {
+  withinLength(length: number) {
     // Check if length is >= 1 but <= length.
     if (length % this.value.length < length) {
       throw new TypeError(

@@ -9,10 +9,15 @@ export interface Description {
    */
   readonly description: string;
 
+  /**
+   * Sets the description.
+   *
+   * @param description - The description.
+   */
   setDescription(description: string): unknown;
 }
 
 export function validateDescription(description: unknown) {
   const validator = new StringValidator("description", description);
-  validator.meetsLength(100);
+  validator.withinLength(100);
 }

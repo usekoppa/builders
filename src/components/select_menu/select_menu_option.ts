@@ -70,7 +70,7 @@ export class SelectMenuOption<Value extends string = string>
 
   private static validateValue(value: unknown): asserts value is string {
     const validator = new StringValidator("value", value);
-    validator.meetsLength(100);
+    validator.withinLength(100);
     validator.hasNoSymbols();
     validator.isLowercase();
   }

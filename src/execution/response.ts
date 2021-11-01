@@ -4,9 +4,9 @@ import { Interactions } from "../api/interactions";
 import { Component } from "../components/component";
 import type { JSONifiable } from "../JSONifiable";
 
-import { CommandRequest } from "./request";
+import { Request } from "./request";
 
-export class InteractionResponse
+export class Response<Arguments extends ResponseArguments = {}>
   implements
     JSONifiable<
       Interactions.Outgoing.Response & {
@@ -25,11 +25,11 @@ export class InteractionResponse
   readonly TTS?: boolean;
   readonly components?: Component[];
 
-  constructor(public readonly request: CommandRequest) {}
+  constructor(public readonly request: Request) {}
 
-  setTTS(TTS: boolean) {
+  setTTS(TTS: boolean) {}
 
-  }
+  setFlags(flags: Interactions.Outgoing.Flags) {}
 
   toJSON() {
     return {
@@ -38,3 +38,22 @@ export class InteractionResponse
     };
   }
 }
+
+type ResponseArgumentsPropertyValue<
+  Name extends keyof Arguments,
+  Arguments extends ResponseArguments
+> = Arguments[Name] extends {
+  [name: string]: infer Pieces;
+}
+  ? Pieces
+  : never;
+
+interface ResponseArguments {
+  [name: string]: {
+    [name: string]: unknown;
+  };
+}
+
+type ArgumentValues<Arguments extends ResponseArguments> = {
+  [Key in keyof Arguments]: ResponseArgumentsPropertyValue<Key, Arguments>;
+};
